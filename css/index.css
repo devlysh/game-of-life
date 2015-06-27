@@ -1,5 +1,6 @@
 .universe {
   border: 1px solid #000;
+  cursor: pointer;
 }
 
   .universe tr td {
