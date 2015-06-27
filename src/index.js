@@ -10,6 +10,7 @@ var g;
   var UNIVERSE_HEIGHT = 60;
   var DEFAULT_ALIVE = false;
   var DEFAULT_NEXT_STEP = null;
+  var DEFAULT_STEP;
   var INTERVAL = 1000;
 
   var GOL = function () {
@@ -19,7 +20,6 @@ var g;
     var Universe = function () {
       this.width = UNIVERSE_WIDTH;
       this.height = UNIVERSE_HEIGHT;
-
       this.space = (function () {
         var s = new Array(this.width);
         for (var c = 0; c < s.length; c++) {
@@ -27,6 +27,21 @@ var g;
         }
         return s;
       }.bind(this))();
+      this.space.toString = function () {
+        var result = [];
+        var space = gol.universe.space;
+        for (var x = 0; x < gol.universe.width; x++) {
+          result.push([]);
+          for (var y = 0; y < gol.universe.height; y++) {
+            result[x][y] = {
+              x: x,
+              y: y,
+              isAlive: space[x][y].isAlive
+            };
+          }
+        }
+        return JSON.stringify(result);
+      };
     };
     Universe.prototype.createUniverse = function (width, height) {
       if (width) this.width = width; else width = this.width;
@@ -116,10 +131,11 @@ var g;
 
     this.universe = new Universe();
     this.intervalID = null;
+    this.step = DEFAULT_STEP;
   };
 
   GOL.prototype.start = function () {
-    this.intervalID = w.setInterval(this.step.bind(this), INTERVAL);
+    this.intervalID = w.setInterval(this.stepForward.bind(this), INTERVAL);
   };
   GOL.prototype.stop = function () {
     w.clearInterval(this.intervalID);
@@ -146,9 +162,8 @@ var g;
       }
     }
   };
-  GOL.prototype.step = function () {
+  GOL.prototype.render = function () {
     var space = this.universe.space;
-    this.calculateNextStep();
     for (var x = 0; x < this.universe.width; x++) {
       for (var y = 0; y < this.universe.height; y++) {
         var cell = space[x][y];
@@ -159,6 +174,25 @@ var g;
         }
       }
     }
+  };
+  GOL.prototype.stepForward = function () {
+    this.calculateNextStep();
+    this.render();
+  };
+  GOL.prototype.save = function (name) {
+    name = name || 'space';
+    ls.setItem(name, this.universe.space.toString());
+  };
+  GOL.prototype.load = function (name) {
+    name = name || 'space';
+    var space = this.universe.space;
+    var loadedSpace = JSON.parse(ls.getItem(name));
+    for (var x = 0; x < this.universe.width; x++) {
+      for (var y = 0; y < this.universe.height; y++) {
+        space[x][y].willLiveNextStep = loadedSpace[x][y].isAlive;
+      }
+    }
+    this.render();
   };
 
   var gol = new GOL();
