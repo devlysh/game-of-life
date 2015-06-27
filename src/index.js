@@ -1,40 +1,49 @@
+var g;
+
 (function (w) {
 
   var d = w.document;
   var b = d.body;
+  var ls = w.localStorage;
 
-  var DEFAULT_WIDTH = 30;
-  var DEFAULT_HEIGHT = 30;
+  var UNIVERSE_WIDTH = 40;
+  var UNIVERSE_HEIGHT = 60;
   var DEFAULT_ALIVE = false;
+  var DEFAULT_NEXT_STEP = null;
+  var INTERVAL = 1000;
 
   var GOL = function () {
     var gol = this;
 
     /* UNIVERSE */
     var Universe = function () {
-      this.width = DEFAULT_WIDTH;
-      this.height = DEFAULT_HEIGHT;
+      this.width = UNIVERSE_WIDTH;
+      this.height = UNIVERSE_HEIGHT;
 
       this.space = (function () {
-        var s = new Array(this.height);
+        var s = new Array(this.width);
         for (var c = 0; c < s.length; c++) {
-          s[c] = new Array(this.width);
+          s[c] = new Array(this.height);
         }
         return s;
       }.bind(this))();
     };
     Universe.prototype.createUniverse = function (width, height) {
-      width = width || this.width;
-      height = height || this.height;
+      if (width) this.width = width; else width = this.width;
+      if (height) this.height = height; else height = this.height;
       var universe = d.createElement('table');
       universe.classList.add('universe');
+      universe.addEventListener('click', Cell.prototype.toggleAliveListener);
       for (var y = 0; y < height; y++) {
         var row = d.createElement('tr');
         for (var x = 0; x < width; x++) {
           var cellElement = d.createElement('td');
+          cellElement.classList.add('cell');
+          cellElement.cellData = {
+            x: x,
+            y: y
+          };
           var cell = new Cell(x, y, cellElement);
-          cellElement.addEventListener('click', cell.toggleAlive);
-          cellElement.cell = cell;
           this.space[x][y] = cell;
           row.appendChild(cellElement);
         }
@@ -46,24 +55,34 @@
       var universe = this.createUniverse(width, height);
       element.appendChild(universe);
     };
-    this.universe = new Universe();
 
     /* CELL */
     var Cell = function (x, y, element) {
-      this.alive = DEFAULT_ALIVE;
+      this.isAlive = DEFAULT_ALIVE;
+      this.willLiveNextStep = DEFAULT_NEXT_STEP;
       this.x = x;
       this.y = y;
       this.element = element;
     };
-    Cell.prototype.toggleAlive = function (event) {
-      var element = event ? this : this.element;
-      if (this.alive) {
-        this.alive = false;
-        element.classList.toggle('alive');
+    Cell.prototype.toggleAliveListener = function (event) {
+      var target = event.path[0];
+      if (!target.classList.contains('cell')) return;
+      var x = target.cellData.x;
+      var y = target.cellData.y;
+      var cell = gol.universe.space[x][y];
+      if (cell.isAlive) {
+        cell.kill();
       } else {
-        this.alive = true;
-        element.classList.toggle('alive');
+        cell.revive();
       }
+    };
+    Cell.prototype.revive = function () {
+      this.isAlive = true;
+      this.element.classList.add('alive');
+    };
+    Cell.prototype.kill = function () {
+      this.isAlive = false;
+      this.element.classList.remove('alive');
     };
     Cell.prototype.findCellsAround = function () {
       var x = this.x;
@@ -89,36 +108,61 @@
 
       return cellsAround;
     };
-    Cell.prototype.calculateAliveCellsAround = function () {
-      var thisCell = this;
+    Cell.prototype.calculateAliveNeighbors = function () {
       return this.findCellsAround().filter(function(cell) {
-        return cell.alive;
+        return cell.isAlive;
       }).length;
     };
-    Cell.prototype.calculateDeadCellsAround = function () {
-      return this.findCellsAround().filter(function(cell) {
-        return !cell.alive;
-      }).length;
-    };
+
+    this.universe = new Universe();
+    this.intervalID = null;
   };
 
-  GOL.prototype.start = function () {};
-  GOL.prototype.stop = function () {};
-  GOL.prototype.step = function () {
+  GOL.prototype.start = function () {
+    this.intervalID = w.setInterval(this.step.bind(this), INTERVAL);
+  };
+  GOL.prototype.stop = function () {
+    w.clearInterval(this.intervalID);
+  };
+  GOL.prototype.calculateNextStep = function () {
     var space = this.universe.space;
     for (var x = 0; x < this.universe.width; x++) {
       for (var y = 0; y < this.universe.height; y++) {
         var cell = space[x][y];
-        var aliveCellsAround = cell.calculateAliveCellsAround();
-        var deadCellsAround = cell.calculateDeadCellsAround();
-
-        console.log(aliveCellsAround, deadCellsAround);
+        var aliveNeighbours = cell.calculateAliveNeighbors();
+        if (cell.isAlive) {
+          if (aliveNeighbours < 2) {
+            cell.willLiveNextStep = false;
+          } else if (aliveNeighbours > 3) {
+            cell.willLiveNextStep = false;
+          } else {
+            cell.willLiveNextStep = true;
+          }
+        } else {
+          if (aliveNeighbours === 3) {
+            cell.willLiveNextStep = true;
+          }
+        }
+      }
+    }
+  };
+  GOL.prototype.step = function () {
+    var space = this.universe.space;
+    this.calculateNextStep();
+    for (var x = 0; x < this.universe.width; x++) {
+      for (var y = 0; y < this.universe.height; y++) {
+        var cell = space[x][y];
+        if (cell.willLiveNextStep) {
+          cell.revive();
+        } else {
+          cell.kill();
+        }
       }
     }
   };
 
   var gol = new GOL();
   gol.universe.appendTo(b);
-  gol.step();
+  g = gol;
 
 })(window);
