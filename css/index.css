@@ -1,5 +1,19 @@
+.menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  width: 100%;
+}
+
+  .menu .button {
+    padding: 10px 20px;
+    margin: 0 5px;
+  }
+
 .universe {
   border: 1px solid #000;
+  margin: 0 auto;
   cursor: pointer;
 }
 

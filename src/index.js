@@ -1,5 +1,3 @@
-var g;
-
 (function (w) {
 
   var d = w.document;
@@ -10,8 +8,8 @@ var g;
   var UNIVERSE_HEIGHT = 60;
   var DEFAULT_ALIVE = false;
   var DEFAULT_NEXT_STEP = null;
-  var DEFAULT_STEP;
-  var INTERVAL = 1000;
+  var DEFAULT_STEP_COUNT = 0;
+  var INTERVAL = 100;
 
   var GOL = function () {
     var gol = this;
@@ -66,9 +64,47 @@ var g;
       }
       return universe;
     };
+    Universe.prototype.createMenu = function () {
+      var menu = d.createElement('div');
+      menu.classList.add('menu');
+
+      var startButton = d.createElement('button'); menu.appendChild(startButton);
+      startButton.appendChild(d.createTextNode('START'));
+      startButton.classList.add('button');
+      startButton.classList.add('start-button');
+      startButton.addEventListener('click', gol.start.bind(gol));
+
+      var stopButton = d.createElement('button'); menu.appendChild(stopButton);
+      stopButton.appendChild(d.createTextNode('STOP'));
+      stopButton.classList.add('button');
+      stopButton.classList.add('stop-button');
+      stopButton.addEventListener('click', gol.stop.bind(gol));
+
+      var stepButton = d.createElement('button'); menu.appendChild(stepButton);
+      stepButton.appendChild(d.createTextNode('NEXT STEP'));
+      stepButton.classList.add('button');
+      stepButton.classList.add('step-button');
+      stepButton.addEventListener('click', gol.stepForward.bind(gol));
+
+      var saveButton = d.createElement('button'); menu.appendChild(saveButton);
+      saveButton.appendChild(d.createTextNode('SAVE'));
+      saveButton.classList.add('button');
+      saveButton.classList.add('save-button');
+      saveButton.addEventListener('click', gol.save.bind(gol));
+
+      var loadButton = d.createElement('button'); menu.appendChild(loadButton);
+      loadButton.appendChild(d.createTextNode('LOAD'));
+      loadButton.classList.add('button');
+      loadButton.classList.add('load-button');
+      loadButton.addEventListener('click', gol.load.bind(gol));
+
+      return menu;
+    };
     Universe.prototype.appendTo = function (element, width, height) {
       var universe = this.createUniverse(width, height);
+      var menu = this.createMenu();
       element.appendChild(universe);
+      element.appendChild(menu);
     };
 
     /* CELL */
@@ -130,15 +166,35 @@ var g;
     };
 
     this.universe = new Universe();
+    this.step = DEFAULT_STEP_COUNT;
     this.intervalID = null;
-    this.step = DEFAULT_STEP;
   };
-
   GOL.prototype.start = function () {
     this.intervalID = w.setInterval(this.stepForward.bind(this), INTERVAL);
   };
   GOL.prototype.stop = function () {
     w.clearInterval(this.intervalID);
+    this.intervalID = null;
+  };
+  GOL.prototype.stepForward = function () {
+    this.step++;
+    this.calculateNextStep();
+    this.render();
+  };
+  GOL.prototype.save = function (name) {
+    name = name || 'space';
+    ls.setItem(name, this.universe.space.toString());
+  };
+  GOL.prototype.load = function (name) {
+    name = name || 'space';
+    var space = this.universe.space;
+    var loadedSpace = JSON.parse(ls.getItem(name));
+    for (var x = 0; x < this.universe.width; x++) {
+      for (var y = 0; y < this.universe.height; y++) {
+        space[x][y].willLiveNextStep = loadedSpace[x][y].isAlive;
+      }
+    }
+    this.render();
   };
   GOL.prototype.calculateNextStep = function () {
     var space = this.universe.space;
@@ -175,28 +231,8 @@ var g;
       }
     }
   };
-  GOL.prototype.stepForward = function () {
-    this.calculateNextStep();
-    this.render();
-  };
-  GOL.prototype.save = function (name) {
-    name = name || 'space';
-    ls.setItem(name, this.universe.space.toString());
-  };
-  GOL.prototype.load = function (name) {
-    name = name || 'space';
-    var space = this.universe.space;
-    var loadedSpace = JSON.parse(ls.getItem(name));
-    for (var x = 0; x < this.universe.width; x++) {
-      for (var y = 0; y < this.universe.height; y++) {
-        space[x][y].willLiveNextStep = loadedSpace[x][y].isAlive;
-      }
-    }
-    this.render();
-  };
 
   var gol = new GOL();
   gol.universe.appendTo(b);
-  g = gol;
 
 })(window);
