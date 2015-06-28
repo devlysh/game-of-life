@@ -1,32 +1,47 @@
-.menu {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  text-align: center;
+html, body {
   width: 100%;
+  height: 100%;
 }
 
-  .menu .button {
-    padding: 10px 20px;
-    margin: 0 5px;
+  .wrap {
+    width: 100%;
+    height: 100%
   }
 
-.universe {
-  border: 1px solid #000;
-  margin: 0 auto;
-  cursor: pointer;
-}
+    .wrap > tr > td {
+      text-align: center;
+      vertical-align: middle;
+    }
 
-  .universe tr td {
-    border: 1px solid #ccc;
-    width: 10px;
-    height: 10px;
-    min-width: 10px;
-    min-height: 10px;
-    margin: 0;
-    padding: 0;
-  }
+      .universe {
+        border: 1px solid #000;
+        margin: 0 auto;
+        cursor: pointer;
+      }
 
-  .universe tr td.alive {
-    background-color: black;
-  }
+        .universe .cell {
+          border: 1px solid #ccc;
+          width: 10px;
+          height: 10px;
+          min-width: 10px;
+          min-height: 10px;
+          margin: 0;
+          padding: 0;
+        }
+
+        .universe .cell.alive {
+          background-color: black;
+        }
+
+      .menu {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        text-align: center;
+        width: 100%;
+      }
+
+        .menu .button {
+          padding: 10px 20px;
+          margin: 0 5px;
+        }

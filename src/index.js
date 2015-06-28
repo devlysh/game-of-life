@@ -3,13 +3,15 @@
   var d = w.document;
   var b = d.body;
   var ls = w.localStorage;
+  var zero = d.getElementById('zero');
 
-  var UNIVERSE_WIDTH = 40;
+  var UNIVERSE_WIDTH = 80;
   var UNIVERSE_HEIGHT = 60;
   var DEFAULT_ALIVE = false;
   var DEFAULT_NEXT_STEP = null;
   var DEFAULT_STEP_COUNT = 0;
   var INTERVAL = 100;
+  var DEFAULT_INTERVAL_ID = null;
 
   var GOL = function () {
     var gol = this;
@@ -27,10 +29,10 @@
       }.bind(this))();
       this.space.toString = function () {
         var result = [];
-        var space = gol.universe.space;
-        for (var x = 0; x < gol.universe.width; x++) {
+        var space = this.space;
+        for (var x = 0; x < this.width; x++) {
           result.push([]);
-          for (var y = 0; y < gol.universe.height; y++) {
+          for (var y = 0; y < this.height; y++) {
             result[x][y] = {
               x: x,
               y: y,
@@ -39,7 +41,7 @@
           }
         }
         return JSON.stringify(result);
-      };
+      }.bind(this);
     };
     Universe.prototype.createUniverse = function (width, height) {
       if (width) this.width = width; else width = this.width;
@@ -167,10 +169,12 @@
 
     this.universe = new Universe();
     this.step = DEFAULT_STEP_COUNT;
-    this.intervalID = null;
+    this.intervalID = DEFAULT_INTERVAL_ID;
   };
   GOL.prototype.start = function () {
-    this.intervalID = w.setInterval(this.stepForward.bind(this), INTERVAL);
+    if (!this.intervalID) {
+      this.intervalID = w.setInterval(this.stepForward.bind(this), INTERVAL);
+    }
   };
   GOL.prototype.stop = function () {
     w.clearInterval(this.intervalID);
@@ -233,6 +237,6 @@
   };
 
   var gol = new GOL();
-  gol.universe.appendTo(b);
+  gol.universe.appendTo(zero);
 
 })(window);
