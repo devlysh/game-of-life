@@ -21,31 +21,7 @@
     var Universe = function () {
       this.width = UNIVERSE_WIDTH;
       this.height = UNIVERSE_HEIGHT;
-      this.space = (function () {
-        var s = new Array(this.width);
-        for (var c = 0; c < s.length; c++) {
-          s[c] = new Array(this.height);
-        }
-        return s;
-      }.bind(this))();
-      this.space.toString = function () {
-        var result = {};
-        var plainSpace = [];
-        var space = this.space;
-        for (var x = 0; x < this.width; x++) {
-          plainSpace.push([]);
-          for (var y = 0; y < this.height; y++) {
-            plainSpace[x][y] = {
-              x: x,
-              y: y,
-              isAlive: space[x][y].isAlive
-            };
-          }
-        }
-        result.space = plainSpace;
-        result.step = gol.step;
-        return JSON.stringify(result);
-      }.bind(this);
+      this.space = new Space(this.width, this.height);
     };
     Universe.prototype.createUniverse = function (width, height) {
       if (width) this.width = width; else width = this.width;
@@ -120,6 +96,33 @@
       element.appendChild(universe);
       element.appendChild(menu);
       element.appendChild(stepDisplay);
+    };
+
+    /* SPACE */
+    var Space = function (width, height) {
+      var s = new Array(width);
+      for (var c = 0; c < s.length; c++) {
+        s[c] = new Array(height);
+      }
+      s.toString = function () {
+        var result = {};
+        var plainSpace = [];
+        var space = gol.universe.space;
+        for (var x = 0; x < width; x++) {
+          plainSpace.push([]);
+          for (var y = 0; y < height; y++) {
+            plainSpace[x][y] = {
+              x: x,
+              y: y,
+              isAlive: space[x][y].isAlive
+            };
+          }
+        }
+        result.space = plainSpace;
+        result.step = gol.step;
+        return JSON.stringify(result);
+      };
+      return s;
     };
 
     /* CELL */
@@ -199,11 +202,11 @@
     this.render();
   };
   GOL.prototype.save = function (name) {
-    name = name || 'space';
+    name = (typeof name === 'string') ? name : 'space';
     ls.setItem(name, this.universe.space.toString());
   };
   GOL.prototype.load = function (name) {
-    name = name || 'space';
+    name = (typeof name === 'string') ? name : 'space';
     var space = this.universe.space;
     var loadedGame = JSON.parse(ls.getItem(name));
     var loadedSpace = loadedGame.space;
