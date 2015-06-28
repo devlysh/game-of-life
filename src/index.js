@@ -6,12 +6,16 @@
   var zero = d.getElementById('zero');
   var stepDisplayElement;
 
+  var MIN_ALIVE_NEIGHBORS_TO_LIVE = 2;
+  var MAX_ALIVE_NEIGHBORS_TO_LIVE = 3;
+  var ALIVE_NEIGHBORS_TO_BE_BORN = 3;
   var UNIVERSE_WIDTH = 80;
   var UNIVERSE_HEIGHT = 60;
+  var INTERVAL = 100;
+
   var DEFAULT_ALIVE = false;
   var DEFAULT_NEXT_STEP = null;
   var DEFAULT_STEP_COUNT = 0;
-  var INTERVAL = 100;
   var DEFAULT_INTERVAL_ID = null;
 
   var GOL = function () {
@@ -225,15 +229,15 @@
         var cell = space[x][y];
         var aliveNeighbours = cell.calculateAliveNeighbors();
         if (cell.isAlive) {
-          if (aliveNeighbours < 2) {
+          if (aliveNeighbours < MIN_ALIVE_NEIGHBORS_TO_LIVE) {
             cell.willLiveNextStep = false;
-          } else if (aliveNeighbours > 3) {
+          } else if (aliveNeighbours > MAX_ALIVE_NEIGHBORS_TO_LIVE) {
             cell.willLiveNextStep = false;
           } else {
             cell.willLiveNextStep = true;
           }
         } else {
-          if (aliveNeighbours === 3) {
+          if (aliveNeighbours === ALIVE_NEIGHBORS_TO_BE_BORN) {
             cell.willLiveNextStep = true;
           }
         }
