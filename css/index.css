@@ -45,3 +45,11 @@ html, body {
           padding: 10px 20px;
           margin: 0 5px;
         }
+
+      .step-display {
+        position: fixed;
+        top: 20px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+      }

@@ -4,6 +4,7 @@
   var b = d.body;
   var ls = w.localStorage;
   var zero = d.getElementById('zero');
+  var stepDisplayElement;
 
   var UNIVERSE_WIDTH = 80;
   var UNIVERSE_HEIGHT = 60;
@@ -28,18 +29,21 @@
         return s;
       }.bind(this))();
       this.space.toString = function () {
-        var result = [];
+        var result = {};
+        var plainSpace = [];
         var space = this.space;
         for (var x = 0; x < this.width; x++) {
-          result.push([]);
+          plainSpace.push([]);
           for (var y = 0; y < this.height; y++) {
-            result[x][y] = {
+            plainSpace[x][y] = {
               x: x,
               y: y,
               isAlive: space[x][y].isAlive
             };
           }
         }
+        result.space = plainSpace;
+        result.step = gol.step;
         return JSON.stringify(result);
       }.bind(this);
     };
@@ -102,11 +106,20 @@
 
       return menu;
     };
+    Universe.prototype.createStepDisplay = function () {
+      var stepDisplay = d.createElement('div');
+      stepDisplay.classList.add('step-display');
+      stepDisplay.appendChild(d.createTextNode(DEFAULT_STEP_COUNT));
+      stepDisplayElement = stepDisplay;
+      return stepDisplay;
+    };
     Universe.prototype.appendTo = function (element, width, height) {
       var universe = this.createUniverse(width, height);
       var menu = this.createMenu();
+      var stepDisplay = this.createStepDisplay();
       element.appendChild(universe);
       element.appendChild(menu);
+      element.appendChild(stepDisplay);
     };
 
     /* CELL */
@@ -192,12 +205,14 @@
   GOL.prototype.load = function (name) {
     name = name || 'space';
     var space = this.universe.space;
-    var loadedSpace = JSON.parse(ls.getItem(name));
+    var loadedGame = JSON.parse(ls.getItem(name));
+    var loadedSpace = loadedGame.space;
     for (var x = 0; x < this.universe.width; x++) {
       for (var y = 0; y < this.universe.height; y++) {
         space[x][y].willLiveNextStep = loadedSpace[x][y].isAlive;
       }
     }
+    gol.step = loadedGame.step;
     this.render();
   };
   GOL.prototype.calculateNextStep = function () {
@@ -222,6 +237,9 @@
       }
     }
   };
+  GOL.prototype.updateStepCounter = function () {
+    stepDisplayElement.innerHTML = this.step;
+  };
   GOL.prototype.render = function () {
     var space = this.universe.space;
     for (var x = 0; x < this.universe.width; x++) {
@@ -234,6 +252,7 @@
         }
       }
     }
+    this.updateStepCounter();
   };
 
   var gol = new GOL();
