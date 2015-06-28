@@ -27,6 +27,24 @@
       this.height = UNIVERSE_HEIGHT;
       this.space = new Space(this.width, this.height);
     };
+    Universe.prototype.toString = function () {
+      var result = {};
+      var plainSpace = [];
+      var space = this.space;
+      for (var x = 0; x < this.width; x++) {
+        plainSpace.push([]);
+        for (var y = 0; y < this.height; y++) {
+          plainSpace[x][y] = {
+            x: this.x,
+            y: this.y,
+            isAlive: space[x][y].isAlive
+          };
+        }
+      }
+      result.space = plainSpace;
+      result.step = gol.step;
+      return JSON.stringify(result);
+    };
     Universe.prototype.createUniverse = function (width, height) {
       if (width) this.width = width; else width = this.width;
       if (height) this.height = height; else height = this.height;
@@ -108,24 +126,6 @@
       for (var c = 0; c < s.length; c++) {
         s[c] = new Array(height);
       }
-      s.toString = function () {
-        var result = {};
-        var plainSpace = [];
-        var space = gol.universe.space;
-        for (var x = 0; x < width; x++) {
-          plainSpace.push([]);
-          for (var y = 0; y < height; y++) {
-            plainSpace[x][y] = {
-              x: x,
-              y: y,
-              isAlive: space[x][y].isAlive
-            };
-          }
-        }
-        result.space = plainSpace;
-        result.step = gol.step;
-        return JSON.stringify(result);
-      };
       return s;
     };
 
@@ -207,7 +207,7 @@
   };
   GOL.prototype.save = function (name) {
     name = (typeof name === 'string') ? name : 'space';
-    ls.setItem(name, this.universe.space.toString());
+    ls.setItem(name, this.universe.toString());
   };
   GOL.prototype.load = function (name) {
     name = (typeof name === 'string') ? name : 'space';
