@@ -1,4 +1,4 @@
 # Game of Life
 **Implementation on JavaScript**
 
-Work in progress...
+Working implementation without proper UI and features.
