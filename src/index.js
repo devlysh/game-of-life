@@ -1,10 +1,6 @@
 (function (w) {
 
-  var d = w.document;
-  var b = d.body;
-  var ls = w.localStorage;
-  var zero = d.getElementById('zero');
-  var stepDisplayElement;
+  "use strict";
 
   var MIN_ALIVE_NEIGHBORS_TO_LIVE = 2;
   var MAX_ALIVE_NEIGHBORS_TO_LIVE = 3;
@@ -17,6 +13,12 @@
   var DEFAULT_NEXT_STEP = null;
   var DEFAULT_STEP_COUNT = 0;
   var DEFAULT_INTERVAL_ID = null;
+
+  var d = w.document;
+  var b = d.body;
+  var ls = w.localStorage;
+  var zeroElement = d.getElementById('zero');
+  var stepDisplayElement;
 
   var GOL = function () {
     var gol = this;
@@ -46,8 +48,9 @@
       return JSON.stringify(result);
     };
     Universe.prototype.createUniverse = function (width, height) {
-      if (width) this.width = width; else width = this.width;
-      if (height) this.height = height; else height = this.height;
+      //TODO: Refactor this method, divide into components
+      if (width) { this.width = width; } else { width = this.width; }
+      if (height) {this.height = height; } else {height = this.height; }
       var universe = d.createElement('table');
       universe.classList.add('universe');
       universe.addEventListener('click', Cell.prototype.toggleAliveListener);
@@ -69,6 +72,7 @@
       return universe;
     };
     Universe.prototype.createMenu = function () {
+      //TODO: Move UI components to other class
       var menu = d.createElement('div');
       menu.classList.add('menu');
 
@@ -105,6 +109,7 @@
       return menu;
     };
     Universe.prototype.createStepDisplay = function () {
+      //TODO: Move UI components to other class
       var stepDisplay = d.createElement('div');
       stepDisplay.classList.add('step-display');
       stepDisplay.appendChild(d.createTextNode(DEFAULT_STEP_COUNT));
@@ -139,7 +144,7 @@
     };
     Cell.prototype.toggleAliveListener = function (event) {
       var target = event.path[0];
-      if (!target.classList.contains('cell')) return;
+      if (!target.classList.contains('cell')) { return; }
       var x = target.cellData.x;
       var y = target.cellData.y;
       var cell = gol.universe.space[x][y];
@@ -168,14 +173,14 @@
 
       var cellsAround = (function () {
         var c = [];
-        if (x-1 > MIN_X && y-1 > MIN_Y ) c.push(space[x-1][y-1]);
-        if (x+1 < MAX_X && y-1 > MIN_Y ) c.push(space[x+1][y-1]);
-        if (x+1 < MAX_X && y+1 < MAX_Y ) c.push(space[x+1][y+1]);
-        if (x-1 > MIN_X && y+1 < MAX_Y ) c.push(space[x-1][y+1]);
-        if (y-1 > MIN_Y ) c.push(space[x][y-1]);
-        if (x+1 < MAX_X ) c.push(space[x+1][y]);
-        if (y+1 < MAX_Y ) c.push(space[x][y+1]);
-        if (x-1 > MIN_X ) c.push(space[x-1][y]);
+        if (x-1 > MIN_X && y-1 > MIN_Y ) { c.push(space[x-1][y-1]); }
+        if (x+1 < MAX_X && y-1 > MIN_Y ) { c.push(space[x+1][y-1]); }
+        if (x+1 < MAX_X && y+1 < MAX_Y ) { c.push(space[x+1][y+1]); }
+        if (x-1 > MIN_X && y+1 < MAX_Y ) { c.push(space[x-1][y+1]); }
+        if (y-1 > MIN_Y ) { c.push(space[x][y-1]); }
+        if (x+1 < MAX_X ) { c.push(space[x+1][y]); }
+        if (y+1 < MAX_Y ) { c.push(space[x][y+1]); }
+        if (x-1 > MIN_X ) { c.push(space[x-1][y]); }
         return c;
       })();
 
@@ -205,12 +210,12 @@
     this.calculateNextStep();
     this.render();
   };
-  GOL.prototype.save = function (name) {
-    name = (typeof name === 'string') ? name : 'space';
+  GOL.prototype.save = function (event, name) {
+    name = name || 'space';
     ls.setItem(name, this.universe.toString());
   };
-  GOL.prototype.load = function (name) {
-    name = (typeof name === 'string') ? name : 'space';
+  GOL.prototype.load = function (event, name) {
+    name = name || 'space';
     var space = this.universe.space;
     var loadedGame = JSON.parse(ls.getItem(name));
     var loadedSpace = loadedGame.space;
@@ -263,6 +268,6 @@
   };
 
   var gol = new GOL();
-  gol.universe.appendTo(zero);
+  gol.universe.appendTo(zeroElement);
 
 })(window);
