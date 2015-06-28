@@ -163,13 +163,13 @@
       this.element.classList.remove('alive');
     };
     Cell.prototype.findCellsAround = function () {
-      var x = this.x;
-      var y = this.y;
-      var space = gol.universe.space;
       var MIN_X = 0;
       var MIN_Y = 0;
       var MAX_X = gol.universe.width;
       var MAX_Y = gol.universe.height;
+      var space = gol.universe.space;
+      var x = this.x;
+      var y = this.y;
 
       var cellsAround = (function () {
         var c = [];
