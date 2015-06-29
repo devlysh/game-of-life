@@ -21,22 +21,20 @@
     var Universe = function () {
       this.width = UNIVERSE_WIDTH;
       this.height = UNIVERSE_HEIGHT;
-      this.space = new Space(this.width, this.height);
+      this.space = gol.createSpace(this.width, this.height);
     };
     Universe.prototype.toLocaleString = function () {
+      var sync;
       var result = {};
-      var plainSpace = [];
+      var plainSpace = gol.createSpace(this.width, this.height);
       var space = this.space;
-      for (var x = 0; x < this.width; x++) {
-        plainSpace.push([]);
-        for (var y = 0; y < this.height; y++) {
-          plainSpace[x][y] = {
-            x: this.x,
-            y: this.y,
-            isAlive: space[x][y].isAlive
-          };
-        }
-      }
+      sync = this.forEachCell(function (cell, x, y) {
+        plainSpace[x][y] = {
+          x: cell.x,
+          y: cell.y,
+          isAlive: space[x][y].isAlive
+        };
+      });
       result.space = plainSpace;
       result.step = gol.step;
       return JSON.stringify(result);
@@ -45,31 +43,31 @@
       //TODO: Refactor this method, divide into components
       if (width) { this.width = width; } else { width = this.width; }
       if (height) {this.height = height; } else {height = this.height; }
-      var universe = d.createElement('table');
-      universe.classList.add('universe');
-      universe.onclick = Cell.prototype.toggleAliveListener;
+      var table = d.createElement('table');
+      table.classList.add('universe');
+      table.onclick = Cell.prototype.toggleAliveListener;
       for (var y = 0; y < height; y++) {
         var row = d.createElement('tr');
         for (var x = 0; x < width; x++) {
           var cellElement = d.createElement('td');
           cellElement.classList.add('cell');
           cellElement.cellData = { x: x, y: y };
-          var cell = new Cell(x, y, cellElement);
-          this.space[x][y] = cell;
+          var newCell = new Cell(x, y, cellElement);
+          this.space[x][y] = newCell;
           row.appendChild(cellElement);
         }
-        universe.appendChild(row);
+        table.appendChild(row);
       }
-      return universe;
+      return table;
     };
-
-    /* SPACE */
-    var Space = function (width, height) {
-      var s = new Array(width);
-      for (var c = 0; c < s.length; c++) {
-        s[c] = new Array(height);
+    Universe.prototype.forEachCell = function (callback) {
+      var space = this.space;
+      for (var x = 0; x < this.width; x++) {
+        for (var y = 0; y < this.height; y++) {
+          var cell = space[x][y];
+          callback.apply(cell, [cell, x, y]);
+        }
       }
-      return s;
     };
 
     /* CELL */
@@ -144,7 +142,7 @@
       startButton.onclick = gol.start.bind(gol);
       stopButton.onclick = gol.stop.bind(gol);
       stepButton.onclick = gol.stepForward.bind(gol);
-      clearButton.onclick = gol.clear.bind(gol);
+      clearButton.onclick = gol.killAll.bind(gol);
       saveButton.onclick = gol.save.bind(gol);
       loadButton.onclick = gol.load.bind(gol);
       return menuTemplate.content;
@@ -207,66 +205,60 @@
   };
   GOL.prototype.load = function (event, name) {
     name = name || 'space';
+    var sync;
     var loadedData = ls.getItem(name);
     if (loadedData) {
-      var space = this.universe.space;
       var loadedGame = JSON.parse(loadedData);
       var loadedSpace = loadedGame.space;
-      for (var x = 0; x < this.universe.width; x++) {
-        for (var y = 0; y < this.universe.height; y++) {
-          space[x][y].willLiveNextStep = loadedSpace[x][y].isAlive;
-        }
-      }
+      sync = this.universe.forEachCell(function (cell, x, y) {
+        cell.willLiveNextStep = loadedSpace[x][y].isAlive;
+      });
       gol.step = loadedGame.step;
       this.render();
     }
   };
-  GOL.prototype.clear = function () {
-    var space = this.universe.space;
-    for (var x = 0; x < this.universe.width; x++) {
-      for (var y = 0; y < this.universe.height; y++) {
-        space[x][y].kill();
-      }
-    }
+  GOL.prototype.killAll = function () {
+    this.universe.forEachCell(function (cell) {
+      cell.kill();
+    });
   };
   GOL.prototype.calculateNextStep = function () {
-    var space = this.universe.space;
-    for (var x = 0; x < this.universe.width; x++) {
-      for (var y = 0; y < this.universe.height; y++) {
-        var cell = space[x][y];
-        var aliveNeighbours = cell.calculateAliveNeighbors();
-        if (cell.isAlive) {
-          if (aliveNeighbours < this.minAliveNeighborsToLive) {
-            cell.willLiveNextStep = false;
-          } else if (aliveNeighbours > this.maxAliveNeighborsToLive) {
-            cell.willLiveNextStep = false;
-          } else {
-            cell.willLiveNextStep = true;
-          }
+    this.universe.forEachCell(function (cell) {
+      var aliveNeighbours = cell.calculateAliveNeighbors();
+      if (cell.isAlive) {
+        if (aliveNeighbours < this.minAliveNeighborsToLive) {
+          cell.willLiveNextStep = false;
+        } else if (aliveNeighbours > this.maxAliveNeighborsToLive) {
+          cell.willLiveNextStep = false;
         } else {
-          if (aliveNeighbours === this.aliveNeighborsToBeBorn) {
-            cell.willLiveNextStep = true;
-          }
+          cell.willLiveNextStep = true;
+        }
+      } else {
+        if (aliveNeighbours === this.aliveNeighborsToBeBorn) {
+          cell.willLiveNextStep = true;
         }
       }
-    }
+    }.bind(this));
   };
   GOL.prototype.updateStepCounter = function () {
     this.ui.stepDisplayElement.innerHTML = this.step;
   };
-  GOL.prototype.render = function () {
-    var space = this.universe.space;
-    this.updateStepCounter();
-    for (var x = 0; x < this.universe.width; x++) {
-      for (var y = 0; y < this.universe.height; y++) {
-        var cell = space[x][y];
-        if (cell.willLiveNextStep) {
-          cell.revive();
-        } else {
-          cell.kill();
-        }
-      }
+  GOL.prototype.createSpace = function (width, height) {
+    var space = new Array(width);
+    for (var i = 0; i < width; i++) {
+      space[i] = new Array(height);
     }
+    return space;
+  };
+  GOL.prototype.render = function () {
+    this.updateStepCounter();
+    this.universe.forEachCell(function (cell) {
+      if (cell.willLiveNextStep) {
+        cell.revive();
+      } else {
+        cell.kill();
+      }
+    });
   };
   GOL.prototype.appendTo = function (element, width, height) {
     var universe = this.universe.create(width, height);
