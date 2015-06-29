@@ -7,6 +7,33 @@
   <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
+  <template id="menu-template">
+    <div class="menu">
+      <button class="button start-button">START</button>
+      <button class="button stop-button">STOP</button>
+      <button class="button step-button">NEXT STEP</button>
+      <button class="button save-button">SAVE</button>
+      <button class="button load-button">LOAD</button>
+    </div>
+  </template>
+  <template id="step-display-template">
+    <div class="step-display">
+      <span>0</span>
+    </div>
+  </template>
+  <template id="input-panel-template">
+    <div class="input-panel">
+      <div><span>2</span>
+        <input class="min-to-live" type="range" min="0" max="8" name="0">
+      </div>
+      <div><span>3</span>
+        <input class="max-to-live" type="range" min="0" max="8" name="1">
+      </div>
+      <div><span>3</span>
+        <input class="to-be-born" type="range" min="0" max="8" name="2">
+      </div>
+    </div>
+  </template>
   <table class="wrap">
     <tr>
       <td id="zero"></td>

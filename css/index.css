@@ -7,28 +7,24 @@ html, body {
     width: 100%;
     height: 100%
   }
-
     .wrap > tr > td {
       text-align: center;
       vertical-align: middle;
     }
-
       .universe {
         border: 1px solid #000;
         margin: 0 auto;
         cursor: pointer;
       }
-
         .universe .cell {
           border: 1px solid #ccc;
-          width: 10px;
-          height: 10px;
-          min-width: 10px;
-          min-height: 10px;
+          width: 6px;
+          height: 6px;
+          min-width: 6px;
+          min-height: 6px;
           margin: 0;
           padding: 0;
         }
-
         .universe .cell.alive {
           background-color: black;
         }
@@ -40,7 +36,6 @@ html, body {
         text-align: center;
         width: 100%;
       }
-
         .menu .button {
           padding: 10px 20px;
           margin: 0 5px;
@@ -53,3 +48,26 @@ html, body {
         width: 100%;
         text-align: center;
       }
+        .step-display span {
+          display: inline-block;
+          width: 30px;
+          height: 30px;
+          line-height: 30px;
+          background-color: rgba(255,255,255,0.5);
+        }
+
+      .input-panel {
+        position: fixed;
+        width: 100%;
+        top: 20px;
+        left: 40px;
+        line-height: 30px;
+      }
+        .input-panel span {
+          display: inline-block;
+          margin-right: 20px;
+        }
+        .input-panel input {
+          display: inline-block;
+          vertical-align: middle;
+        }
