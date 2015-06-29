@@ -4,7 +4,7 @@
 
   var UNIVERSE_WIDTH = 120;
   var UNIVERSE_HEIGHT = 80;
-  var INTERVAL = 100;
+  var INTERVAL = 40;
 
   var DEFAULT_MIN_ALIVE_NEIGHBORS_TO_LIVE = 2;
   var DEFAULT_MAX_ALIVE_NEIGHBORS_TO_LIVE = 3;
@@ -170,9 +170,6 @@
       minToLive.value = gol.minAliveNeighborsToLive;
       maxToLive.value = gol.maxAliveNeighborsToLive;
       toBeBorn.value = gol.aliveNeighborsToBeBorn;
-      minToLive.name = 'min-to-live';
-      maxToLive.name = 'max-to-live';
-      toBeBorn.name = 'to-be-born';
       return inputPanel;
     };
 
@@ -200,7 +197,7 @@
   };
   GOL.prototype.changeLifeContitionsListener = function (event) {
     var value = event.target.value;
-    this.parentElement.children[0].innerHTML = value;
+    this.parentElement.querySelector('span').innerHTML = value;
     if (event.target.name === 'min-to-live') { gol.minAliveNeighborsToLive = Number(value); }
     if (event.target.name === 'max-to-live') { gol.maxAliveNeighborsToLive = Number(value); }
     if (event.target.name === 'to-be-born') { gol.aliveNeighborsToBeBorn = Number(value); }
