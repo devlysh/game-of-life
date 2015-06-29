@@ -12,9 +12,7 @@
 
   var d = w.document;
   var ls = w.localStorage;
-
   var zeroElement = d.getElementById('zero');
-  var stepDisplayElement;
 
   var GOL = function () {
     var gol = this;
@@ -132,7 +130,9 @@
     };
 
     /* UI */
-    var UI = function () {};
+    var UI = function () {
+      this.stepDisplayElement = null;
+    };
     UI.prototype.createMenu = function () {
       var menuTemplate = d.getElementById('menu-template');
       var startButton = menuTemplate.content.querySelector('.start-button');
@@ -151,7 +151,7 @@
     };
     UI.prototype.createStepDisplay = function () {
       var stepDisplayTemplate = d.getElementById('step-display-template');
-      stepDisplayElement = stepDisplayTemplate.content.querySelector('.step-display span');
+      this.stepDisplayElement = stepDisplayTemplate.content.querySelector('.step-display span');
       return stepDisplayTemplate.content;
     };
     UI.prototype.createInputPanel = function () {
@@ -194,10 +194,11 @@
     this.render();
   };
   GOL.prototype.changeLifeContitionsListener = function (event) {
-    this.parentElement.children[0].innerHTML = event.target.value;
-    if (event.target.name === 'min-to-live') { gol.minAliveNeighborsToLive = Number(event.target.value); }
-    if (event.target.name === 'max-to-live') { gol.maxAliveNeighborsToLive = Number(event.target.value); }
-    if (event.target.name === 'to-be-born') { gol.aliveNeighborsToBeBorn = Number(event.target.value); }
+    var value = event.target.value;
+    this.parentElement.children[0].innerHTML = value;
+    if (event.target.name === 'min-to-live') { gol.minAliveNeighborsToLive = Number(value); }
+    if (event.target.name === 'max-to-live') { gol.maxAliveNeighborsToLive = Number(value); }
+    if (event.target.name === 'to-be-born') { gol.aliveNeighborsToBeBorn = Number(value); }
     gol.calculateNextStep();
   };
   GOL.prototype.save = function (event, name) {
@@ -251,7 +252,7 @@
     }
   };
   GOL.prototype.updateStepCounter = function () {
-    stepDisplayElement.innerHTML = this.step;
+    this.ui.stepDisplayElement.innerHTML = this.step;
   };
   GOL.prototype.render = function () {
     var space = this.universe.space;
