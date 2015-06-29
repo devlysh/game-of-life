@@ -86,7 +86,7 @@
       this.element = element;
     };
     Cell.prototype.toggleAliveListener = function (event) {
-      var target = event.path[0];
+      var target = event.target || event.path[0];
       if (!target.classList.contains('cell')) { return; }
       var x = target.cellData.x;
       var y = target.cellData.y;
