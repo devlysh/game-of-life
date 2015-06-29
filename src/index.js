@@ -21,12 +21,12 @@
     var Universe = function () {
       this.width = UNIVERSE_WIDTH;
       this.height = UNIVERSE_HEIGHT;
-      this.space = gol.createSpace(this.width, this.height);
+      this.space = this.createSpace(this.width, this.height);
     };
     Universe.prototype.toLocaleString = function () {
       var sync;
       var result = {};
-      var plainSpace = gol.createSpace(this.width, this.height);
+      var plainSpace = this.createSpace(this.width, this.height);
       var space = this.space;
       sync = this.forEachCell(function (cell, x, y) {
         plainSpace[x][y] = {
@@ -59,6 +59,13 @@
         table.appendChild(row);
       }
       return table;
+    };
+    Universe.prototype.createSpace = function (width, height) {
+      var space = new Array(width);
+      for (var i = 0; i < width; i++) {
+        space[i] = new Array(height);
+      }
+      return space;
     };
     Universe.prototype.forEachCell = function (callback) {
       var space = this.space;
@@ -213,7 +220,7 @@
       sync = this.universe.forEachCell(function (cell, x, y) {
         cell.willLiveNextStep = loadedSpace[x][y].isAlive;
       });
-      gol.step = loadedGame.step;
+      this.step = loadedGame.step;
       this.render();
     }
   };
@@ -242,13 +249,6 @@
   };
   GOL.prototype.updateStepCounter = function () {
     this.ui.stepDisplayElement.innerHTML = this.step;
-  };
-  GOL.prototype.createSpace = function (width, height) {
-    var space = new Array(width);
-    for (var i = 0; i < width; i++) {
-      space[i] = new Array(height);
-    }
-    return space;
   };
   GOL.prototype.render = function () {
     this.updateStepCounter();
