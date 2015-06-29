@@ -227,6 +227,7 @@
   GOL.prototype.killAll = function () {
     this.universe.forEachCell(function (cell) {
       cell.kill();
+      cell.willLiveNextStep = false;
     });
   };
   GOL.prototype.calculateNextStep = function () {
