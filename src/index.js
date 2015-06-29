@@ -139,31 +139,31 @@
       this.stepDisplayElement = null;
     };
     UI.prototype.createMenu = function () {
-      var menuTemplate = d.getElementById('menu-template');
-      var startButton = menuTemplate.content.querySelector('.start-button');
-      var stopButton = menuTemplate.content.querySelector('.stop-button');
-      var stepButton = menuTemplate.content.querySelector('.step-button');
-      var clearButton = menuTemplate.content.querySelector('.clear-button');
-      var saveButton = menuTemplate.content.querySelector('.save-button');
-      var loadButton = menuTemplate.content.querySelector('.load-button');
+      var menu = d.getElementById('menu-template').content;
+      var startButton = menu.querySelector('.start-button');
+      var stopButton = menu.querySelector('.stop-button');
+      var stepButton = menu.querySelector('.step-button');
+      var clearButton = menu.querySelector('.clear-button');
+      var saveButton = menu.querySelector('.save-button');
+      var loadButton = menu.querySelector('.load-button');
       startButton.onclick = gol.start.bind(gol);
       stopButton.onclick = gol.stop.bind(gol);
       stepButton.onclick = gol.stepForward.bind(gol);
       clearButton.onclick = gol.killAll.bind(gol);
       saveButton.onclick = gol.save.bind(gol);
       loadButton.onclick = gol.load.bind(gol);
-      return menuTemplate.content;
+      return menu;
     };
     UI.prototype.createStepDisplay = function () {
-      var stepDisplayTemplate = d.getElementById('step-display-template');
-      this.stepDisplayElement = stepDisplayTemplate.content.querySelector('.step-display span');
-      return stepDisplayTemplate.content;
+      var stepDisplay = d.getElementById('step-display-template').content;
+      this.stepDisplayElement = stepDisplay.querySelector('.step-display span');
+      return stepDisplay;
     };
     UI.prototype.createInputPanel = function () {
-      var inputPanelTemplate = d.getElementById('input-panel-template');
-      var minToLive = inputPanelTemplate.content.querySelector('.min-to-live');
-      var maxToLive = inputPanelTemplate.content.querySelector('.max-to-live');
-      var toBeBorn = inputPanelTemplate.content.querySelector('.to-be-born');
+      var inputPanel = d.getElementById('input-panel-template').content;
+      var minToLive = inputPanel.querySelector('.min-to-live');
+      var maxToLive = inputPanel.querySelector('.max-to-live');
+      var toBeBorn = inputPanel.querySelector('.to-be-born');
       minToLive.oninput = gol.changeLifeContitionsListener;
       maxToLive.oninput = gol.changeLifeContitionsListener;
       toBeBorn.oninput = gol.changeLifeContitionsListener;
@@ -173,7 +173,7 @@
       minToLive.name = 'min-to-live';
       maxToLive.name = 'max-to-live';
       toBeBorn.name = 'to-be-born';
-      return inputPanelTemplate.content;
+      return inputPanel;
     };
 
     this.ui = new UI();
