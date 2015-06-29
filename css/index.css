@@ -26,7 +26,7 @@ html, body {
           padding: 0;
         }
         .universe .cell.alive {
-          background-color: black;
+          background-color: black !important;
         }
 
       .menu {

@@ -6,9 +6,9 @@
   var UNIVERSE_HEIGHT = 80;
   var INTERVAL = 40;
 
-  var DEFAULT_MIN_ALIVE_NEIGHBORS_TO_LIVE = 2;
-  var DEFAULT_MAX_ALIVE_NEIGHBORS_TO_LIVE = 3;
-  var DEFAULT_ALIVE_NEIGHBORS_TO_BE_BORN = 3;
+  var DEFAULT_MIN_NEIGHBORS_TO_LIVE = 2;
+  var DEFAULT_MAX_NEIGHBORS_TO_LIVE = 3;
+  var DEFAULT_NEIGHBORS_TO_BE_BORN = 3;
 
   var d = w.document;
   var ls = w.localStorage;
@@ -81,9 +81,10 @@
     var Cell = function (x, y, element) {
       this.isAlive = false;
       this.willLiveNextStep = null;
+      this.element = element;
+      this.death = 0;
       this.x = x;
       this.y = y;
-      this.element = element;
     };
     Cell.prototype.toggleAliveListener = function (event) {
       var target = event.target || event.path[0];
@@ -99,12 +100,18 @@
       gol.calculateNextStep();
     };
     Cell.prototype.revive = function () {
-      this.isAlive = true;
-      this.element.classList.add('alive');
+      if (!this.isAlive) {
+        this.isAlive = true;
+        this.element.classList.add('alive');
+      }
     };
     Cell.prototype.kill = function () {
-      this.isAlive = false;
-      this.element.classList.remove('alive');
+      if (this.isAlive) {
+        this.death++;
+        this.isAlive = false;
+        this.drench();
+        this.element.classList.remove('alive');
+      }
     };
     Cell.prototype.findCellsAround = function () {
       var MIN_X = 0;
@@ -132,6 +139,10 @@
       return this.findCellsAround().filter(function(cell) {
         return cell.isAlive;
       }).length;
+    };
+    Cell.prototype.drench = function () {
+      var saturation = this.death / 100;
+      this.element.style.backgroundColor = 'rgba(0,0,0,' + saturation + ')';
     };
 
     /* UI */
@@ -175,9 +186,9 @@
 
     this.ui = new UI();
     this.universe = new Universe();
-    this.minAliveNeighborsToLive = DEFAULT_MIN_ALIVE_NEIGHBORS_TO_LIVE;
-    this.maxAliveNeighborsToLive = DEFAULT_MAX_ALIVE_NEIGHBORS_TO_LIVE;
-    this.aliveNeighborsToBeBorn = DEFAULT_ALIVE_NEIGHBORS_TO_BE_BORN;
+    this.minAliveNeighborsToLive = DEFAULT_MIN_NEIGHBORS_TO_LIVE;
+    this.maxAliveNeighborsToLive = DEFAULT_MAX_NEIGHBORS_TO_LIVE;
+    this.aliveNeighborsToBeBorn = DEFAULT_NEIGHBORS_TO_BE_BORN;
     this.intervalID = null;
     this.step = 0;
   };
