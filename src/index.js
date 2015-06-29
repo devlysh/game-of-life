@@ -138,11 +138,13 @@
       var startButton = menuTemplate.content.querySelector('.start-button');
       var stopButton = menuTemplate.content.querySelector('.stop-button');
       var stepButton = menuTemplate.content.querySelector('.step-button');
+      var clearButton = menuTemplate.content.querySelector('.clear-button');
       var saveButton = menuTemplate.content.querySelector('.save-button');
       var loadButton = menuTemplate.content.querySelector('.load-button');
       startButton.onclick = gol.start.bind(gol);
       stopButton.onclick = gol.stop.bind(gol);
       stepButton.onclick = gol.stepForward.bind(gol);
+      clearButton.onclick = gol.clear.bind(gol);
       saveButton.onclick = gol.save.bind(gol);
       loadButton.onclick = gol.load.bind(gol);
       return menuTemplate.content;
@@ -216,6 +218,14 @@
       }
       gol.step = loadedGame.step;
       this.render();
+    }
+  };
+  GOL.prototype.clear = function () {
+    var space = this.universe.space;
+    for (var x = 0; x < this.universe.width; x++) {
+      for (var y = 0; y < this.universe.height; y++) {
+        space[x][y].kill();
+      }
     }
   };
   GOL.prototype.calculateNextStep = function () {
