@@ -237,6 +237,7 @@
       cell.kill();
       cell.willLiveNextStep = false;
     });
+    gol.updateStepCounter(0);
   };
   GOL.prototype.calculateNextStep = function () {
     this.universe.forEachCell(function (cell) {
@@ -256,8 +257,9 @@
       }
     }.bind(this));
   };
-  GOL.prototype.updateStepCounter = function () {
-    this.ui.stepDisplayElement.innerHTML = this.step;
+  GOL.prototype.updateStepCounter = function (value) {
+    if (typeof value === 'number') { this.step = value; } else { value = this.step; }
+    this.ui.stepDisplayElement.innerHTML = value;
   };
   GOL.prototype.render = function () {
     this.updateStepCounter();
@@ -282,6 +284,10 @@
 
   var gol = new GOL();
   gol.appendTo(zeroElement);
-  gol.load();
+
+  var defaultGame = ls.getItem('defaultGame');
+  if (defaultGame) {
+    gol.load(null, 'defaultGame');
+  }
 
 })(window);
