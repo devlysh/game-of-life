@@ -2,8 +2,8 @@
 
   "use strict";
 
-  var UNIVERSE_WIDTH = 120;
-  var UNIVERSE_HEIGHT = 80;
+  var DEFAULT_UNIVERSE_WIDTH = 120;
+  var DEFAULT_UNIVERSE_HEIGHT = 80;
   var INTERVAL = 40;
 
   var DEFAULT_MIN_NEIGHBORS_TO_LIVE = 2;
@@ -19,8 +19,8 @@
 
     /* UNIVERSE */
     var Universe = function () {
-      this.width = UNIVERSE_WIDTH;
-      this.height = UNIVERSE_HEIGHT;
+      this.width = DEFAULT_UNIVERSE_WIDTH;
+      this.height = DEFAULT_UNIVERSE_HEIGHT;
       this.space = this.createSpace(this.width, this.height);
     };
     Universe.prototype.toLocaleString = function () {
@@ -39,13 +39,13 @@
       result.step = gol.step;
       return JSON.stringify(result);
     };
-    Universe.prototype.create = function (width, height) {
+    Universe.prototype.create = function () {
       //TODO: Refactor this method, divide into components
-      if (width) { this.width = width; } else { width = this.width; }
-      if (height) {this.height = height; } else {height = this.height; }
+      var width = this.width;
+      var height = this.height;
       var table = d.createElement('table');
       table.classList.add('universe');
-      table.onclick = Cell.prototype.toggleAliveListener;
+      table.onclick = gol.toggleCellListener.bind(gol);
       for (var y = 0; y < height; y++) {
         var row = d.createElement('tr');
         for (var x = 0; x < width; x++) {
@@ -85,19 +85,6 @@
       this.death = 0;
       this.x = x;
       this.y = y;
-    };
-    Cell.prototype.toggleAliveListener = function (event) {
-      var target = event.target || event.path[0];
-      if (!target.classList.contains('cell')) { return; }
-      var x = target.cellData.x;
-      var y = target.cellData.y;
-      var cell = gol.universe.space[x][y];
-      if (cell.isAlive) {
-        cell.kill();
-      } else {
-        cell.revive();
-      }
-      gol.calculateNextStep();
     };
     Cell.prototype.revive = function () {
       if (!this.isAlive) {
@@ -157,12 +144,12 @@
       var clearButton = menu.querySelector('.clear-button');
       var saveButton = menu.querySelector('.save-button');
       var loadButton = menu.querySelector('.load-button');
-      startButton.onclick = gol.start.bind(gol);
-      stopButton.onclick = gol.stop.bind(gol);
-      stepButton.onclick = gol.stepForward.bind(gol);
-      clearButton.onclick = gol.killAll.bind(gol);
-      saveButton.onclick = gol.save.bind(gol);
-      loadButton.onclick = gol.load.bind(gol);
+      startButton.onclick = gol.startListener.bind(gol);
+      stopButton.onclick = gol.stopListener.bind(gol);
+      stepButton.onclick = gol.stepForwardListener.bind(gol);
+      clearButton.onclick = gol.killAllCellsListener.bind(gol);
+      saveButton.onclick = gol.saveListener.bind(gol);
+      loadButton.onclick = gol.loadListener.bind(gol);
       return menu;
     };
     UI.prototype.createStepDisplay = function () {
@@ -175,9 +162,9 @@
       var minToLive = inputPanel.querySelector('.min-to-live');
       var maxToLive = inputPanel.querySelector('.max-to-live');
       var toBeBorn = inputPanel.querySelector('.to-be-born');
-      minToLive.oninput = gol.changeLifeContitionsListener;
-      maxToLive.oninput = gol.changeLifeContitionsListener;
-      toBeBorn.oninput = gol.changeLifeContitionsListener;
+      minToLive.oninput = gol.changeLifeConditionsListener.bind(gol);
+      maxToLive.oninput = gol.changeLifeConditionsListener.bind(gol);
+      toBeBorn.oninput = gol.changeLifeConditionsListener.bind(gol);
       minToLive.value = gol.minAliveNeighborsToLive;
       maxToLive.value = gol.maxAliveNeighborsToLive;
       toBeBorn.value = gol.aliveNeighborsToBeBorn;
@@ -206,20 +193,12 @@
     this.calculateNextStep();
     this.render();
   };
-  GOL.prototype.changeLifeContitionsListener = function (event) {
-    var value = event.target.value;
-    this.parentElement.querySelector('span').innerHTML = value;
-    if (event.target.name === 'min-to-live') { gol.minAliveNeighborsToLive = Number(value); }
-    if (event.target.name === 'max-to-live') { gol.maxAliveNeighborsToLive = Number(value); }
-    if (event.target.name === 'to-be-born') { gol.aliveNeighborsToBeBorn = Number(value); }
-    gol.calculateNextStep();
-  };
-  GOL.prototype.save = function (event, name) {
-    name = name || 'space';
+  GOL.prototype.save = function (name) {
+    name = name || 'savedGame';
     ls.setItem(name, this.universe.toLocaleString());
   };
-  GOL.prototype.load = function (event, name) {
-    name = name || 'space';
+  GOL.prototype.load = function (name) {
+    name = name || 'savedGame';
     var sync;
     var loadedData = ls.getItem(name);
     if (loadedData) {
@@ -232,12 +211,29 @@
       this.render();
     }
   };
-  GOL.prototype.killAll = function () {
+  GOL.prototype.toggleCell = function (event) {
+    var target = event.target || event.path[0];
+    if (!target.classList.contains('cell')) { return; }
+    var x = target.cellData.x;
+    var y = target.cellData.y;
+    var cell = this.universe.space[x][y];
+    if (cell.isAlive) {
+      cell.kill();
+    } else {
+      cell.revive();
+    }
+    this.calculateNextStep();
+  };
+  GOL.prototype.killAllCells = function () {
     this.universe.forEachCell(function (cell) {
       cell.kill();
       cell.willLiveNextStep = false;
     });
     gol.updateStepCounter(0);
+  };
+  GOL.prototype.changeLifeConditions = function (key, value) {
+    this[key] = value;
+    this.calculateNextStep();
   };
   GOL.prototype.calculateNextStep = function () {
     this.universe.forEachCell(function (cell) {
@@ -281,13 +277,49 @@
     element.appendChild(stepDisplay);
     element.appendChild(inputPanel);
   };
+  GOL.prototype.startListener = function (event) {
+    this.start.call(this);
+  };
+  GOL.prototype.stopListener = function (event) {
+    this.stop.call(this);
+  };
+  GOL.prototype.stepForwardListener = function (event) {
+    this.stepForward.call(this);
+  };
+  GOL.prototype.killAllCellsListener = function (event) {
+    this.killAllCells.call(this);
+  };
+  GOL.prototype.saveListener = function (event) {
+    this.save.call(this);
+  };
+  GOL.prototype.loadListener = function (event) {
+    this.load.call(this);
+  };
+  GOL.prototype.changeLifeConditionsListener = function (event) {
+    var k, v;
+    var target = event.target;
+    target.parentElement.querySelector('span').innerHTML = target.value;
+    if (event.target.name === 'min-to-live') { k = 'minAliveNeighborsToLive'; v = Number(target.value); }
+    if (event.target.name === 'max-to-live') { k = 'maxAliveNeighborsToLive'; v = Number(target.value); }
+    if (event.target.name === 'to-be-born') { k = 'aliveNeighborsToBeBorn'; v = Number(target.value); }
+    this.changeLifeConditions.call(this, k, v);
+  };
+  GOL.prototype.toggleCellListener = function (event) {
+    this.toggleCell.call(this, event);
+  };
 
   var gol = new GOL();
-  gol.appendTo(zeroElement);
-
   var defaultGame = ls.getItem('defaultGame');
-  if (defaultGame) {
-    gol.load(null, 'defaultGame');
+  var savedGame = ls.getItem('savedGame');
+  gol.appendTo(zeroElement);
+  if (!savedGame) {
+    gol.load('defaultGame');
+  } else {
+    gol.load();
   }
 
+  g = gol;
+
 })(window);
+
+var g;

@@ -63,11 +63,18 @@ html, body {
         left: 40px;
         line-height: 30px;
       }
-        .input-panel span {
-          display: inline-block;
-          margin-right: 20px;
+        .input-panel {
+          /*display: inline-block;*/
         }
-        .input-panel input {
-          display: inline-block;
-          vertical-align: middle;
-        }
+          .input-panel .value {
+            vertical-align: middle;
+          }
+          .input-panel input {
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 10px;
+          }
+          .input-panel .description {
+            font-size: 66%;
+            vertical-align: middle;
+          }
