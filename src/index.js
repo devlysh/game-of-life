@@ -2,9 +2,10 @@
 
   "use strict";
 
-  var DEFAULT_UNIVERSE_WIDTH = 120;
-  var DEFAULT_UNIVERSE_HEIGHT = 80;
+  var DEFAULT_UNIVERSE_WIDTH = 121;
+  var DEFAULT_UNIVERSE_HEIGHT = 81;
   var INTERVAL = 40;
+  var COLOR_INTERVAL = 1;
 
   var DEFAULT_MIN_NEIGHBORS_TO_LIVE = 2;
   var DEFAULT_MAX_NEIGHBORS_TO_LIVE = 3;
@@ -26,14 +27,14 @@
     Universe.prototype.toLocaleString = function () {
       var sync;
       var result = {};
-      var plainSpace = this.createSpace(this.width, this.height);
-      var space = this.space;
+      var plainSpace = [];
       sync = this.forEachCell(function (cell, x, y) {
-        plainSpace[x][y] = {
-          x: cell.x,
-          y: cell.y,
-          isAlive: space[x][y].isAlive
-        };
+        if (cell.isAlive) {
+          plainSpace.push({
+            x: cell.x,
+            y: cell.y,
+          });
+        }
       });
       result.space = plainSpace;
       result.step = gol.step;
@@ -94,30 +95,30 @@
     };
     Cell.prototype.kill = function () {
       if (this.isAlive) {
-        this.death++;
         this.isAlive = false;
-        this.drench();
         this.element.classList.remove('alive');
+        this.death++;
+        this.drench();
       }
     };
     Cell.prototype.findCellsAround = function () {
       var MIN_X = 0;
       var MIN_Y = 0;
-      var MAX_X = gol.universe.width;
-      var MAX_Y = gol.universe.height;
+      var MAX_X = gol.universe.width-1;
+      var MAX_Y = gol.universe.height-1;
       var space = gol.universe.space;
       var x = this.x;
       var y = this.y;
       var cellsAround = (function () {
         var c = [];
-        if (x-1 > MIN_X && y-1 > MIN_Y ) { c.push(space[x-1][y-1]); }
-        if (x+1 < MAX_X && y-1 > MIN_Y ) { c.push(space[x+1][y-1]); }
-        if (x+1 < MAX_X && y+1 < MAX_Y ) { c.push(space[x+1][y+1]); }
-        if (x-1 > MIN_X && y+1 < MAX_Y ) { c.push(space[x-1][y+1]); }
-        if (y-1 > MIN_Y ) { c.push(space[x][y-1]); }
-        if (x+1 < MAX_X ) { c.push(space[x+1][y]); }
-        if (y+1 < MAX_Y ) { c.push(space[x][y+1]); }
-        if (x-1 > MIN_X ) { c.push(space[x-1][y]); }
+        if (x-1 >= MIN_X && y-1 >= MIN_Y ) { c.push(space[x-1][y-1]); }
+        if (x+1 <= MAX_X && y-1 >= MIN_Y ) { c.push(space[x+1][y-1]); }
+        if (x+1 <= MAX_X && y+1 <= MAX_Y ) { c.push(space[x+1][y+1]); }
+        if (x-1 >= MIN_X && y+1 <= MAX_Y ) { c.push(space[x-1][y+1]); }
+        if (y-1 >= MIN_Y ) { c.push(space[x][y-1]); }
+        if (x+1 <= MAX_X ) { c.push(space[x+1][y]); }
+        if (y+1 <= MAX_Y ) { c.push(space[x][y+1]); }
+        if (x-1 >= MIN_X ) { c.push(space[x-1][y]); }
         return c;
       })();
       return cellsAround;
@@ -129,7 +130,7 @@
     };
     Cell.prototype.drench = function () {
       var saturation = this.death / 100;
-      this.element.style.backgroundColor = 'rgba(0,0,0,' + saturation + ')';
+      this.element.style.backgroundColor = 'rgba(255, 100, 100,' + saturation + ')';
     };
 
     /* UI */
@@ -176,6 +177,8 @@
     this.minNeighborsToLive = DEFAULT_MIN_NEIGHBORS_TO_LIVE;
     this.maxNeighborsToLive = DEFAULT_MAX_NEIGHBORS_TO_LIVE;
     this.neighborsToBeBorn = DEFAULT_NEIGHBORS_TO_BE_BORN;
+    this.cellsColor = '000000';
+    // this.drenchColor = 'aaaaaa';
     this.intervalID = null;
     this.step = 0;
   };
@@ -199,20 +202,18 @@
   };
   GOL.prototype.load = function (name) {
     name = name || 'savedGame';
-    var sync;
-    var loadedData = ls.getItem(name);
-    if (loadedData) {
-      var loadedGame = JSON.parse(loadedData);
-      var loadedSpace = loadedGame.space;
-      sync = this.universe.forEachCell(function (cell, x, y) {
-        cell.willLiveNextStep = loadedSpace[x][y].isAlive;
-      });
+    var data = ls.getItem(name);
+    if (data) {
+      var loadedGame = JSON.parse(data);
       this.step = loadedGame.step;
-      this.render();
+      this.killAllCells();
+      loadedGame.space.forEach(function (cell) {
+        this.universe.space[cell.x][cell.y].revive();
+      }.bind(this));
     }
   };
   GOL.prototype.toggleCell = function (event) {
-    var target = event.target || event.path[0];
+    var target = event.target;
     if (!target.classList.contains('cell')) { return; }
     var x = target.cellData.x;
     var y = target.cellData.y;
@@ -227,7 +228,7 @@
   GOL.prototype.killAllCells = function () {
     this.universe.forEachCell(function (cell) {
       cell.kill();
-      cell.willLiveNextStep = false;
+      cell.willLiveNextStep = null;
     });
     gol.updateStepCounter(0);
   };
@@ -239,9 +240,7 @@
     this.universe.forEachCell(function (cell) {
       var aliveNeighbours = cell.calculateAliveNeighbors();
       if (cell.isAlive) {
-        if (aliveNeighbours < this.minNeighborsToLive) {
-          cell.willLiveNextStep = false;
-        } else if (aliveNeighbours > this.maxNeighborsToLive) {
+        if (aliveNeighbours < this.minNeighborsToLive || aliveNeighbours > this.maxNeighborsToLive) {
           cell.willLiveNextStep = false;
         } else {
           cell.willLiveNextStep = true;
@@ -249,6 +248,8 @@
       } else {
         if (aliveNeighbours === this.neighborsToBeBorn) {
           cell.willLiveNextStep = true;
+        } else {
+          cell.willLiveNextStep = false;
         }
       }
     }.bind(this));
@@ -265,6 +266,7 @@
       } else {
         cell.kill();
       }
+      cell.willLiveNextStep = null;
     });
   };
   GOL.prototype.appendTo = function (element, width, height) {
@@ -298,10 +300,11 @@
   GOL.prototype.changeLifeConditionsListener = function (event) {
     var k, v;
     var target = event.target;
-    target.parentElement.querySelector('span').innerHTML = target.value;
-    if (event.target.name === 'min-to-live') { k = 'minNeighborsToLive'; v = Number(target.value); }
-    if (event.target.name === 'max-to-live') { k = 'maxNeighborsToLive'; v = Number(target.value); }
-    if (event.target.name === 'to-be-born') { k = 'neighborsToBeBorn'; v = Number(target.value); }
+    var value = target.value;
+    target.parentElement.querySelector('span').innerHTML = value;
+    if (target.name === 'min-to-live') { k = 'minNeighborsToLive'; v = Number(value); }
+    if (target.name === 'max-to-live') { k = 'maxNeighborsToLive'; v = Number(value); }
+    if (target.name === 'to-be-born') { k = 'neighborsToBeBorn'; v = Number(value); }
     this.changeLifeConditions.call(this, k, v);
   };
   GOL.prototype.toggleCellListener = function (event) {
@@ -313,10 +316,10 @@
   gol.appendTo(zeroElement);
 
   // Loading game
-  if (!savedGame) {
-    gol.load('defaultGame');
-  } else {
+  if (savedGame) {
     gol.load();
+  } else {
+    gol.load('defaultGame');
   }
 
   // Creating global link for Game object
