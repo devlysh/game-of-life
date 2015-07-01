@@ -40,7 +40,7 @@
       return JSON.stringify(result);
     };
     Universe.prototype.create = function () {
-      //TODO: Refactor this method, divide into components
+      // TODO: Refactor this method, divide into components
       var width = this.width;
       var height = this.height;
       var table = d.createElement('table');
@@ -165,17 +165,17 @@
       minToLive.oninput = gol.changeLifeConditionsListener.bind(gol);
       maxToLive.oninput = gol.changeLifeConditionsListener.bind(gol);
       toBeBorn.oninput = gol.changeLifeConditionsListener.bind(gol);
-      minToLive.value = gol.minAliveNeighborsToLive;
-      maxToLive.value = gol.maxAliveNeighborsToLive;
-      toBeBorn.value = gol.aliveNeighborsToBeBorn;
+      minToLive.value = gol.minNeighborsToLive;
+      maxToLive.value = gol.maxNeighborsToLive;
+      toBeBorn.value = gol.neighborsToBeBorn;
       return inputPanel;
     };
 
     this.ui = new UI();
     this.universe = new Universe();
-    this.minAliveNeighborsToLive = DEFAULT_MIN_NEIGHBORS_TO_LIVE;
-    this.maxAliveNeighborsToLive = DEFAULT_MAX_NEIGHBORS_TO_LIVE;
-    this.aliveNeighborsToBeBorn = DEFAULT_NEIGHBORS_TO_BE_BORN;
+    this.minNeighborsToLive = DEFAULT_MIN_NEIGHBORS_TO_LIVE;
+    this.maxNeighborsToLive = DEFAULT_MAX_NEIGHBORS_TO_LIVE;
+    this.neighborsToBeBorn = DEFAULT_NEIGHBORS_TO_BE_BORN;
     this.intervalID = null;
     this.step = 0;
   };
@@ -239,15 +239,15 @@
     this.universe.forEachCell(function (cell) {
       var aliveNeighbours = cell.calculateAliveNeighbors();
       if (cell.isAlive) {
-        if (aliveNeighbours < this.minAliveNeighborsToLive) {
+        if (aliveNeighbours < this.minNeighborsToLive) {
           cell.willLiveNextStep = false;
-        } else if (aliveNeighbours > this.maxAliveNeighborsToLive) {
+        } else if (aliveNeighbours > this.maxNeighborsToLive) {
           cell.willLiveNextStep = false;
         } else {
           cell.willLiveNextStep = true;
         }
       } else {
-        if (aliveNeighbours === this.aliveNeighborsToBeBorn) {
+        if (aliveNeighbours === this.neighborsToBeBorn) {
           cell.willLiveNextStep = true;
         }
       }
@@ -277,31 +277,31 @@
     element.appendChild(stepDisplay);
     element.appendChild(inputPanel);
   };
-  GOL.prototype.startListener = function (event) {
+  GOL.prototype.startListener = function () {
     this.start.call(this);
   };
-  GOL.prototype.stopListener = function (event) {
+  GOL.prototype.stopListener = function () {
     this.stop.call(this);
   };
-  GOL.prototype.stepForwardListener = function (event) {
+  GOL.prototype.stepForwardListener = function () {
     this.stepForward.call(this);
   };
-  GOL.prototype.killAllCellsListener = function (event) {
+  GOL.prototype.killAllCellsListener = function () {
     this.killAllCells.call(this);
   };
-  GOL.prototype.saveListener = function (event) {
+  GOL.prototype.saveListener = function () {
     this.save.call(this);
   };
-  GOL.prototype.loadListener = function (event) {
+  GOL.prototype.loadListener = function () {
     this.load.call(this);
   };
   GOL.prototype.changeLifeConditionsListener = function (event) {
     var k, v;
     var target = event.target;
     target.parentElement.querySelector('span').innerHTML = target.value;
-    if (event.target.name === 'min-to-live') { k = 'minAliveNeighborsToLive'; v = Number(target.value); }
-    if (event.target.name === 'max-to-live') { k = 'maxAliveNeighborsToLive'; v = Number(target.value); }
-    if (event.target.name === 'to-be-born') { k = 'aliveNeighborsToBeBorn'; v = Number(target.value); }
+    if (event.target.name === 'min-to-live') { k = 'minNeighborsToLive'; v = Number(target.value); }
+    if (event.target.name === 'max-to-live') { k = 'maxNeighborsToLive'; v = Number(target.value); }
+    if (event.target.name === 'to-be-born') { k = 'neighborsToBeBorn'; v = Number(target.value); }
     this.changeLifeConditions.call(this, k, v);
   };
   GOL.prototype.toggleCellListener = function (event) {
@@ -309,15 +309,17 @@
   };
 
   var gol = new GOL();
-  var defaultGame = ls.getItem('defaultGame');
   var savedGame = ls.getItem('savedGame');
   gol.appendTo(zeroElement);
+
+  // Loading game
   if (!savedGame) {
     gol.load('defaultGame');
   } else {
     gol.load();
   }
 
+  // Creating global link for Game object
   g = gol;
 
 })(window);
