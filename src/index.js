@@ -177,10 +177,25 @@
     this.minNeighborsToLive = DEFAULT_MIN_NEIGHBORS_TO_LIVE;
     this.maxNeighborsToLive = DEFAULT_MAX_NEIGHBORS_TO_LIVE;
     this.neighborsToBeBorn = DEFAULT_NEIGHBORS_TO_BE_BORN;
-    this.cellsColor = '000000';
-    // this.drenchColor = 'aaaaaa';
     this.intervalID = null;
     this.step = 0;
+
+    this.init();
+  };
+  GOL.prototype.init = function () {
+    var gol = this;
+    var savedGame = ls.getItem('savedGame');
+    gol.appendTo(zeroElement);
+
+    // Loading game
+    if (savedGame) {
+      gol.load();
+    } else {
+      gol.load('defaultGame');
+    }
+
+    // Creating global link for Game object
+    g = gol;
   };
   GOL.prototype.start = function () {
     if (!this.intervalID) {
@@ -230,7 +245,7 @@
       cell.kill();
       cell.willLiveNextStep = null;
     });
-    gol.updateStepCounter(0);
+    this.updateStepCounter(0);
   };
   GOL.prototype.changeLifeConditions = function (key, value) {
     this[key] = value;
@@ -311,19 +326,7 @@
     this.toggleCell.call(this, event);
   };
 
-  var gol = new GOL();
-  var savedGame = ls.getItem('savedGame');
-  gol.appendTo(zeroElement);
-
-  // Loading game
-  if (savedGame) {
-    gol.load();
-  } else {
-    gol.load('defaultGame');
-  }
-
-  // Creating global link for Game object
-  g = gol;
+  return new GOL();
 
 })(window);
 
