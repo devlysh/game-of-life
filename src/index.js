@@ -75,10 +75,13 @@
         return JSON.stringify(result);
       },
       createSpace: function (width, height) {
-        var i,
-            space = new Array(width);
-        for (i = 0; i < width; i++) {
-          space[i] = new Array(height);
+        var x, y,
+            space = [];
+        for (x = 0; x < width; x++) {
+          space[x] = [];
+          for (y = 0; y < height; y++) {
+            space[x][y] = new Cell(x, y, null);
+          }
         }
         return space;
       },
@@ -159,11 +162,10 @@
     };
     UI.prototype = {
       createUniverse: function () {
-        // TODO: Refactor this method, divide into components
-        var x, y, row, cellElement, newCell,
+        var x, y, table, row, cellElement,
             width = gol.universe.width,
-            height = gol.universe.height,
-            table = d.createElement('table');
+            height = gol.universe.height;
+        table = d.createElement('table');
         table.classList.add('universe');
         table.addEventListener('click', toggleCellListener);
         for (y = 0; y < height; y++) {
@@ -172,9 +174,8 @@
             cellElement = d.createElement('td');
             cellElement.classList.add('cell');
             cellElement.cellData = {x: x, y: y};
-            newCell = new Cell(x, y, cellElement);
-            gol.universe.space[x][y] = newCell;
             row.appendChild(cellElement);
+            gol.universe.space[x][y].element = cellElement;
           }
           table.appendChild(row);
         }
@@ -219,8 +220,6 @@
       }
     };
 
-    this.ui = new UI();
-    this.universe = new Universe();
     this.minNeighborsToLive = DEFAULT_MIN_NEIGHBORS_TO_LIVE;
     this.maxNeighborsToLive = DEFAULT_MAX_NEIGHBORS_TO_LIVE;
     this.neighborsToBeBorn = DEFAULT_NEIGHBORS_TO_BE_BORN;
@@ -228,18 +227,19 @@
     this.intervalID = null;
     this.rAFID = null;
     this.step = 0;
+    this.universe = new Universe();
+    this.ui = new UI();
 
     this.init();
   };
   GameOfLife.prototype = {
     init: function () {
-      var gol = this,
-          savedGame = lS.getItem('savedGame');
-      gol.appendTo(d.getElementById('zero'));
+      var savedGame = lS.getItem('savedGame');
+      this.appendTo(d.getElementById('zero'));
       if (savedGame) {
-        gol.load();
+        this.load();
       } else {
-        gol.load('defaultGame');
+        this.load('defaultGame');
       }
     },
     start: function () {
