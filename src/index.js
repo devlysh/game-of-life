@@ -2,22 +2,23 @@
 
   "use strict";
 
-  var d = w.document,
-      lS = w.localStorage,
-      rAF = w.requestAnimationFrame,
-      cAF = w.cancelAnimationFrame,
-      sI = w.setInterval,
-      cI = w.clearInterval;
-
   var DEFAULT_UNIVERSE_WIDTH = 121,
       DEFAULT_UNIVERSE_HEIGHT = 81,
+      DEFAULT_CELL_WIDTH = 5,
+      DEFAULT_CELL_HEIGHT = 5,
+      DEFAULT_BORDER_WIDTH = 1,
       DEFAULT_MIN_NEIGHBORS_TO_LIVE = 2,
       DEFAULT_MAX_NEIGHBORS_TO_LIVE = 3,
       DEFAULT_NEIGHBORS_TO_BE_BORN = 3,
-      DEFAULT_TIME_INTERVAL = 40;
+      DEFAULT_TIME_INTERVAL = 40,
+      DEFAULT_ALIVE_COLOR = 'black',
+      DEFAULT_DEAD_COLOR = 'white',
+      FULL_CELL_WIDTH = DEFAULT_CELL_WIDTH + DEFAULT_BORDER_WIDTH,
+      FULL_CELL_HEIGHT = DEFAULT_CELL_HEIGHT + DEFAULT_BORDER_WIDTH;
 
   var GameOfLife = function () {
     var gol = this;
+    window.g = this;
 
     function startListener () {
       gol.start.call(gol);
@@ -47,9 +48,9 @@
       gol.changeLifeConditions.call(gol, k, v);
     }
     function toggleCellListener (event) {
-      var target = event.target;
-      if (!target.classList.contains('cell')) { return; }
-      gol.toggleCell.call(gol, target.cellData.x, target.cellData.y);
+      var x = Math.floor((event.layerX - DEFAULT_BORDER_WIDTH) / FULL_CELL_WIDTH),
+          y = Math.floor((event.layerY - DEFAULT_BORDER_WIDTH) / FULL_CELL_HEIGHT);
+      gol.toggleCell.call(gol, x, y);
     }
 
     var Universe = function () {
@@ -102,7 +103,6 @@
     var Cell = function (x, y, element) {
       this.isAlive = false;
       this.willLiveNextStep = null;
-      this.element = element;
       this.deathCounter = 0;
       this.x = x;
       this.y = y;
@@ -111,14 +111,11 @@
       revive: function () {
         if (!this.isAlive) {
           this.isAlive = true;
-          this.element.classList.add('alive');
         }
       },
       kill: function () {
         if (this.isAlive) {
           this.isAlive = false;
-          this.element.classList.remove('alive');
-          this.drench();
           this.deathCounter++;
         }
       },
@@ -147,10 +144,6 @@
             return cell.isAlive;
           })
           .length;
-      },
-      drench: function () {
-        var saturation = this.deathCounter / 100;
-        this.element.style.backgroundColor = 'rgba(255, 100, 100,' + saturation + ')';
       }
     };
 
@@ -159,30 +152,25 @@
       this.minNeighborsToLiveElement = null;
       this.maxNeighborsToLiveElement = null;
       this.neighborsToBeBornElement = null;
+      this.universe = null;
+      this.universeContext = null;
     };
     UI.prototype = {
       createUniverse: function () {
-        var x, y, table, row, cellElement,
-            width = gol.universe.width,
-            height = gol.universe.height;
-        table = d.createElement('table');
-        table.classList.add('universe');
-        table.addEventListener('click', toggleCellListener);
-        for (y = 0; y < height; y++) {
-          row = d.createElement('tr');
-          for (x = 0; x < width; x++) {
-            cellElement = d.createElement('td');
-            cellElement.classList.add('cell');
-            cellElement.cellData = {x: x, y: y};
-            row.appendChild(cellElement);
-            gol.universe.space[x][y].element = cellElement;
-          }
-          table.appendChild(row);
-        }
-        return table;
+        var i, j,
+            canvas = document.createElement('canvas'),
+            context = canvas.getContext('2d');
+        canvas.width = DEFAULT_UNIVERSE_WIDTH * FULL_CELL_WIDTH + DEFAULT_BORDER_WIDTH;
+        canvas.height = DEFAULT_UNIVERSE_HEIGHT * FULL_CELL_HEIGHT + DEFAULT_BORDER_WIDTH;
+        canvas.classList.add('universe');
+        canvas.addEventListener('click', toggleCellListener);
+        context.fillStyle = 'black';
+        this.universe  = canvas;
+        this.universeContext = context;
+        return canvas;
       },
       createMenu: function () {
-        var menu = d.getElementById('menu-template').content,
+        var menu = document.getElementById('menu-template').content,
             startButton = menu.querySelector('.start-button'),
             stopButton = menu.querySelector('.stop-button'),
             stepButton = menu.querySelector('.step-button'),
@@ -198,12 +186,12 @@
         return menu;
       },
       createStepDisplay: function () {
-        var stepDisplay = d.getElementById('step-display-template').content;
+        var stepDisplay = document.getElementById('step-display-template').content;
         this.stepDisplayElement = stepDisplay.querySelector('.step-display span');
         return stepDisplay;
       },
       createInputPanel: function () {
-        var inputPanel = d.getElementById('input-panel-template').content,
+        var inputPanel = document.getElementById('input-panel-template').content,
             minToLive = inputPanel.querySelector('.min-to-live'),
             maxToLive = inputPanel.querySelector('.max-to-live'),
             toBeBorn = inputPanel.querySelector('.to-be-born');
@@ -234,8 +222,8 @@
   };
   GameOfLife.prototype = {
     init: function () {
-      var savedGame = lS.getItem('savedGame');
-      this.appendTo(d.getElementById('zero'));
+      var savedGame = localStorage.getItem('savedGame');
+      this.appendTo(document.getElementById('zero'));
       if (savedGame) {
         this.load();
       } else {
@@ -244,37 +232,46 @@
     },
     start: function () {
       if (!this.intervalID) {
-        this.intervalID = sI(this.stepForward.bind(this), this.timeInterval);
+        this.intervalID = setInterval(this.stepForward.bind(this), this.timeInterval);
       }
     },
     stop: function () {
-      cI(this.intervalID);
+      clearInterval(this.intervalID);
       this.intervalID = null;
     },
     stepForward: function () {
-      cAF(this.rAFID);
-      this.rAFID = rAF(this.rAFStep.bind(this));
+      cancelAnimationFrame(this.rAFID);
+      this.rAFID = requestAnimationFrame(this.rAFStep.bind(this));
     },
     rAFStep: function () {
+      var sync;
       this.calculateNextStep();
-      this.render();
+      sync = this.universe.forEachCell(function (cell) {
+        if (cell.willLiveNextStep) {
+          cell.revive();
+        } else {
+          cell.kill();
+        }
+      });
       this.updateStepCounter(this.step + 1);
+      this.render();
     },
     save: function (name) {
       name = name || 'savedGame';
-      lS.setItem(name, this.universe.toLocaleString());
+      localStorage.setItem(name, this.universe.toLocaleString());
     },
     load: function (name) {
-      var data, loadedGame;
+      var data, loadedGame, sync;
       name = name || 'savedGame';
-      data = lS.getItem(name);
+      data = localStorage.getItem(name);
       if (data) {
         loadedGame = JSON.parse(data);
         this.killAllCells();
         this.updateStepCounter(loadedGame.step);
-        loadedGame.space.forEach(function (cell) {
+        sync = loadedGame.space.forEach(function (cell) {
           this.universe.space[cell.x][cell.y].revive();
         }.bind(this));
+        this.render();
       }
     },
     toggleCell: function (x, y) {
@@ -285,6 +282,9 @@
         cell.revive();
       }
       this.calculateNextStep();
+      this.render();
+
+      console.log(x, y, cell.isAlive);
     },
     killAllCells: function () {
       this.universe.forEachCell(function (cell) {
@@ -322,18 +322,17 @@
         this.step = value;
       } else if (typeof value === 'undefined') {
         value = this.step;
-      } else {
-        throw new Error('"value" should be a number or undefined');
       }
       this.ui.stepDisplayElement.innerHTML = value;
     },
     render: function () {
+      var x, y,
+          context = this.ui.universeContext;
       this.universe.forEachCell(function (cell) {
-        if (cell.willLiveNextStep) {
-          cell.revive();
-        } else {
-          cell.kill();
-        }
+        x = cell.x * FULL_CELL_WIDTH + DEFAULT_BORDER_WIDTH;
+        y = cell.y * FULL_CELL_HEIGHT + DEFAULT_BORDER_WIDTH;
+        context.fillStyle = cell.isAlive ? DEFAULT_ALIVE_COLOR : DEFAULT_DEAD_COLOR;
+        context.fillRect(x, y, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
       });
     },
     appendTo: function (element) {
