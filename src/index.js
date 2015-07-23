@@ -4,9 +4,9 @@
 
   var DEFAULT_UNIVERSE_WIDTH = 121,
       DEFAULT_UNIVERSE_HEIGHT = 81,
-      DEFAULT_CELL_WIDTH = 5,
-      DEFAULT_CELL_HEIGHT = 5,
-      DEFAULT_BORDER_WIDTH = 1,
+      DEFAULT_CELL_WIDTH = 6,
+      DEFAULT_CELL_HEIGHT = 6,
+      DEFAULT_BORDER_WIDTH = 2,
       DEFAULT_MIN_NEIGHBORS_TO_LIVE = 2,
       DEFAULT_MAX_NEIGHBORS_TO_LIVE = 3,
       DEFAULT_NEIGHBORS_TO_BE_BORN = 3,
@@ -102,8 +102,9 @@
 
     var Cell = function (x, y, element) {
       this.isAlive = false;
-      this.willLiveNextStep = null;
       this.deathCounter = 0;
+      this.willLiveNextStep = null;
+      this.color = DEFAULT_DEAD_COLOR;
       this.x = x;
       this.y = y;
     };
@@ -111,13 +112,19 @@
       revive: function () {
         if (!this.isAlive) {
           this.isAlive = true;
+          this.calculateColor();
         }
       },
       kill: function () {
         if (this.isAlive) {
           this.isAlive = false;
           this.deathCounter++;
+          this.calculateColor();
         }
+      },
+      calculateColor: function () {
+        var saturation = this.deathCounter < 254 ? 255 - this.deathCounter : 0;
+        this.color = this.isAlive ? DEFAULT_ALIVE_COLOR : 'rgb(250,' + saturation + ',' + saturation + ')';
       },
       findCellsAround: function () {
         var MIN_X = 0,
@@ -164,7 +171,6 @@
         canvas.height = DEFAULT_UNIVERSE_HEIGHT * FULL_CELL_HEIGHT + DEFAULT_BORDER_WIDTH;
         canvas.classList.add('universe');
         canvas.addEventListener('click', toggleCellListener);
-        context.fillStyle = 'black';
         this.universe  = canvas;
         this.universeContext = context;
         return canvas;
@@ -283,8 +289,6 @@
       }
       this.calculateNextStep();
       this.render();
-
-      console.log(x, y, cell.isAlive);
     },
     killAllCells: function () {
       this.universe.forEachCell(function (cell) {
@@ -292,6 +296,7 @@
         cell.willLiveNextStep = null;
       });
       this.updateStepCounter(0);
+      this.render();
     },
     changeLifeConditions: function (key, value) {
       this.ui[key + 'Element'].value = value;
@@ -331,7 +336,7 @@
       this.universe.forEachCell(function (cell) {
         x = cell.x * FULL_CELL_WIDTH + DEFAULT_BORDER_WIDTH;
         y = cell.y * FULL_CELL_HEIGHT + DEFAULT_BORDER_WIDTH;
-        context.fillStyle = cell.isAlive ? DEFAULT_ALIVE_COLOR : DEFAULT_DEAD_COLOR;
+        context.fillStyle = cell.color;
         context.fillRect(x, y, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
       });
     },
