@@ -198,14 +198,14 @@
             stopButton = menu.querySelector('.stop-button'),
             stepButton = menu.querySelector('.step-button'),
             clearButton = menu.querySelector('.clear-button'),
-            saveButton = menu.querySelector('.save-button'),
-            loadButton = menu.querySelector('.load-button');
+            loadButton = menu.querySelector('.load-button'),
+            saveButton = menu.querySelector('.save-button');
         startButton.addEventListener('click', startListener);
         stopButton.addEventListener('click', stopListener);
         stepButton.addEventListener('click', stepForwardListener);
         clearButton.addEventListener('click', killAllCellsListener);
-        saveButton.addEventListener('click', saveListener);
         loadButton.addEventListener('click', loadListener);
+        saveButton.addEventListener('click', saveListener);
         return menu;
       },
       createStepDisplay: function () {
