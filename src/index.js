@@ -2,23 +2,29 @@
 
   "use strict";
 
-  var DEFAULT_UNIVERSE_WIDTH = 121,
-      DEFAULT_UNIVERSE_HEIGHT = 81,
-      DEFAULT_CELL_WIDTH = 6,
-      DEFAULT_CELL_HEIGHT = 6,
-      DEFAULT_BORDER_WIDTH = 2,
-      DEFAULT_MIN_NEIGHBORS_TO_LIVE = 2,
-      DEFAULT_MAX_NEIGHBORS_TO_LIVE = 3,
-      DEFAULT_NEIGHBORS_TO_BE_BORN = 3,
-      DEFAULT_TIME_INTERVAL = 40,
-      DEFAULT_ALIVE_COLOR = 'black',
-      DEFAULT_DEAD_COLOR = 'white',
-      FULL_CELL_WIDTH = DEFAULT_CELL_WIDTH + DEFAULT_BORDER_WIDTH,
-      FULL_CELL_HEIGHT = DEFAULT_CELL_HEIGHT + DEFAULT_BORDER_WIDTH;
+  var UNIVERSE_WIDTH = 121,
+      UNIVERSE_HEIGHT = 81,
+      CELL_WIDTH = 6,
+      CELL_HEIGHT = 6,
+      BORDER_WIDTH = 1,
+      MIN_NEIGHBORS_TO_LIVE = 2,
+      MAX_NEIGHBORS_TO_LIVE = 3,
+      NEIGHBORS_TO_BE_BORN = 3,
+      AGE_COLOR_MULTIPLYER = 10,
+      DEATH_COUNT_WITHRAW = 0.2,
+      ALIVE_NEIGHBORS_COLOR_MULTIPLYER = 3,
+      DEAD_COLOR_MULTIPLYER = 10,
+      TIME_INTERVAL = 40,
+      ALIVE_MULTI_COLOR_THRESHOLD  = 100,
+      DEAD_MULTI_COLOR_THRESHOLD  = 255,
+      FULL_CELL_WIDTH = CELL_WIDTH + BORDER_WIDTH,
+      FULL_CELL_HEIGHT = CELL_HEIGHT + BORDER_WIDTH,
+      ALIVE_COLOR = 'black',
+      DEAD_COLOR = 'white';
 
   var GameOfLife = function () {
     var gol = this;
-    window.g = this;
+    w.g = gol;
 
     function startListener () {
       gol.start.call(gol);
@@ -48,14 +54,14 @@
       gol.changeLifeConditions.call(gol, k, v);
     }
     function toggleCellListener (event) {
-      var x = Math.floor((event.layerX - DEFAULT_BORDER_WIDTH) / FULL_CELL_WIDTH),
-          y = Math.floor((event.layerY - DEFAULT_BORDER_WIDTH) / FULL_CELL_HEIGHT);
+      var x = Math.floor((event.layerX - BORDER_WIDTH) / FULL_CELL_WIDTH),
+          y = Math.floor((event.layerY - BORDER_WIDTH) / FULL_CELL_HEIGHT);
       gol.toggleCell.call(gol, x, y);
     }
 
     var Universe = function () {
-      this.width = DEFAULT_UNIVERSE_WIDTH;
-      this.height = DEFAULT_UNIVERSE_HEIGHT;
+      this.width = UNIVERSE_WIDTH;
+      this.height = UNIVERSE_HEIGHT;
       this.space = this.createSpace(this.width, this.height);
     };
     Universe.prototype = {
@@ -81,30 +87,33 @@
         for (x = 0; x < width; x++) {
           space[x] = [];
           for (y = 0; y < height; y++) {
-            space[x][y] = new Cell(x, y, null);
+            space[x][y] = new Cell(x, y);
           }
         }
         return space;
       },
       forEachCell: function (callback) {
-        var x, y,
+        var x, y, cell,
             width = this.width,
             height = this.height,
             space = this.space;
         for (x = 0; x < width; x++) {
           for (y = 0; y < height; y++) {
-            var cell = space[x][y];
+            cell = space[x][y];
             callback.apply(cell, [cell, x, y]);
           }
         }
+        return null;
       }
     };
 
-    var Cell = function (x, y, element) {
+    var Cell = function (x, y) {
       this.isAlive = false;
-      this.deathCounter = 0;
+      this.age = 0;
+      this.deathCount = 0;
+      this.aliveNeighborsCount = 0;
       this.willLiveNextStep = null;
-      this.color = DEFAULT_DEAD_COLOR;
+      this.color = DEAD_COLOR;
       this.x = x;
       this.y = y;
     };
@@ -112,19 +121,27 @@
       revive: function () {
         if (!this.isAlive) {
           this.isAlive = true;
-          this.calculateColor();
         }
       },
       kill: function () {
         if (this.isAlive) {
           this.isAlive = false;
-          this.deathCounter++;
-          this.calculateColor();
         }
       },
       calculateColor: function () {
-        var saturation = this.deathCounter < 254 ? 255 - this.deathCounter : 0;
-        this.color = this.isAlive ? DEFAULT_ALIVE_COLOR : 'rgb(250,' + saturation + ',' + saturation + ')';
+        var r , g, b, deathCount, aliveMulti, deadMulti;
+        if (this.isAlive) {
+          aliveMulti = this.age * AGE_COLOR_MULTIPLYER + this.aliveNeighborsCount * ALIVE_NEIGHBORS_COLOR_MULTIPLYER;
+          r = 0;
+          g = b = aliveMulti < ALIVE_MULTI_COLOR_THRESHOLD ? aliveMulti : ALIVE_MULTI_COLOR_THRESHOLD;
+          this.color = this.age === 0 ? ALIVE_COLOR : 'rgb(' + r + ',' + g + ',' + b + ')';
+        } else {
+          deathCount = Math.floor(this.deathCount);
+          deadMulti = deathCount * DEAD_COLOR_MULTIPLYER;
+          r = 255;
+          g = b = deadMulti < DEAD_MULTI_COLOR_THRESHOLD ? DEAD_MULTI_COLOR_THRESHOLD - deadMulti : 0;
+          this.color = deadMulti === 0 ? DEAD_COLOR : 'rgb(' + r + ',' + g + ',' + b + ')';
+        }
       },
       findCellsAround: function () {
         var MIN_X = 0,
@@ -167,8 +184,8 @@
         var i, j,
             canvas = document.createElement('canvas'),
             context = canvas.getContext('2d');
-        canvas.width = DEFAULT_UNIVERSE_WIDTH * FULL_CELL_WIDTH + DEFAULT_BORDER_WIDTH;
-        canvas.height = DEFAULT_UNIVERSE_HEIGHT * FULL_CELL_HEIGHT + DEFAULT_BORDER_WIDTH;
+        canvas.width = UNIVERSE_WIDTH * FULL_CELL_WIDTH + BORDER_WIDTH;
+        canvas.height = UNIVERSE_HEIGHT * FULL_CELL_HEIGHT + BORDER_WIDTH;
         canvas.classList.add('universe');
         canvas.addEventListener('click', toggleCellListener);
         this.universe  = canvas;
@@ -214,10 +231,10 @@
       }
     };
 
-    this.minNeighborsToLive = DEFAULT_MIN_NEIGHBORS_TO_LIVE;
-    this.maxNeighborsToLive = DEFAULT_MAX_NEIGHBORS_TO_LIVE;
-    this.neighborsToBeBorn = DEFAULT_NEIGHBORS_TO_BE_BORN;
-    this.timeInterval = DEFAULT_TIME_INTERVAL;
+    this.minNeighborsToLive = MIN_NEIGHBORS_TO_LIVE;
+    this.maxNeighborsToLive = MAX_NEIGHBORS_TO_LIVE;
+    this.neighborsToBeBorn = NEIGHBORS_TO_BE_BORN;
+    this.timeInterval = TIME_INTERVAL;
     this.intervalID = null;
     this.rAFID = null;
     this.step = 0;
@@ -253,11 +270,20 @@
       var sync;
       this.calculateNextStep();
       sync = this.universe.forEachCell(function (cell) {
-        if (cell.willLiveNextStep) {
+        if (!cell.isAlive && cell.willLiveNextStep) {
           cell.revive();
-        } else {
+        } else if (cell.isAlive && cell.willLiveNextStep) {
+          cell.age++;
+        } else if (!cell.isAlive && !cell.willLiveNextStep) {
+          cell.deathCount -= cell.deathCount > DEATH_COUNT_WITHRAW ? DEATH_COUNT_WITHRAW : 0;
+        } else if (cell.isAlive && !cell.willLiveNextStep) {
           cell.kill();
+          this.deathCount++;
+          cell.age = 0;
         }
+      });
+      sync = this.universe.forEachCell(function (cell) {
+        cell.aliveNeighborsCount = cell.calculateAliveNeighbors();
       });
       this.updateStepCounter(this.step + 1);
       this.render();
@@ -305,8 +331,9 @@
       this.calculateNextStep();
     },
     calculateNextStep: function () {
+      var aliveNeighbors;
       this.universe.forEachCell(function (cell) {
-        var aliveNeighbors = cell.calculateAliveNeighbors();
+        aliveNeighbors = cell.calculateAliveNeighbors();
         if (cell.isAlive) {
           if (aliveNeighbors < this.minNeighborsToLive || aliveNeighbors > this.maxNeighborsToLive) {
             cell.willLiveNextStep = false;
@@ -334,10 +361,11 @@
       var x, y,
           context = this.ui.universeContext;
       this.universe.forEachCell(function (cell) {
-        x = cell.x * FULL_CELL_WIDTH + DEFAULT_BORDER_WIDTH;
-        y = cell.y * FULL_CELL_HEIGHT + DEFAULT_BORDER_WIDTH;
+        cell.calculateColor();
+        x = cell.x * FULL_CELL_WIDTH + BORDER_WIDTH;
+        y = cell.y * FULL_CELL_HEIGHT + BORDER_WIDTH;
         context.fillStyle = cell.color;
-        context.fillRect(x, y, DEFAULT_CELL_WIDTH, DEFAULT_CELL_HEIGHT);
+        context.fillRect(x, y, CELL_WIDTH, CELL_HEIGHT);
       });
     },
     appendTo: function (element) {
@@ -346,9 +374,9 @@
           stepDisplay = this.ui.createStepDisplay(),
           inputPanel = this.ui.createInputPanel();
       element.appendChild(universe);
-      element.appendChild(menu);
       element.appendChild(stepDisplay);
       element.appendChild(inputPanel);
+      element.appendChild(menu);
     }
   };
 
