@@ -7,9 +7,11 @@
  * @module app
  * @submodule cell
  */
-define(function (app) {
+define(function () {
   /**
    * @class Cell
+   * @param x {Number} X coordinate of cell
+   * @param y {Number} Y coordinate of cell
    * @constructor
    */
   var Cell = function (x, y) {
@@ -45,19 +47,24 @@ define(function (app) {
      * @method calculateColor
      */
     calculateColor: function () {
-      var r , g, b, deathCount, aliveMulti, deadMulti;
-      if (this.isAlive) {
-        aliveMulti = this.age * app.config.AGE_COLOR_MULTIPLYER + this.aliveNeighborsCount * app.config.ALIVE_NEIGHBORS_COLOR_MULTIPLYER;
-        r = 0;
-        g = b = aliveMulti < app.config.ALIVE_MULTI_COLOR_THRESHOLD ? aliveMulti : app.config.ALIVE_MULTI_COLOR_THRESHOLD;
-        this.color = this.age === 0 ? app.config.ALIVE_COLOR : 'rgb(' + r + ',' + g + ',' + b + ')';
-      } else {
-        deathCount = Math.floor(this.deathCount);
-        deadMulti = deathCount * app.config.DEAD_COLOR_MULTIPLYER;
-        r = 255;
-        g = b = deadMulti < app.config.DEAD_MULTI_COLOR_THRESHOLD ? app.config.DEAD_MULTI_COLOR_THRESHOLD - deadMulti : 0;
-        this.color = deadMulti === 0 ? app.config.DEAD_COLOR : 'rgb(' + r + ',' + g + ',' + b + ')';
-      }
+      // TODO: Rewrite this method.
+      //
+      // var r , g, b, deathCount, aliveMulti, deadMulti;
+      // if (this.isAlive) {
+      //   aliveMulti = this.age * app.config.AGE_COLOR_MULTIPLYER + this.aliveNeighborsCount * app.config.ALIVE_NEIGHBORS_COLOR_MULTIPLYER;
+      //   r = 0;
+      //   g = b = aliveMulti < app.config.ALIVE_MULTI_COLOR_THRESHOLD ? aliveMulti : app.config.ALIVE_MULTI_COLOR_THRESHOLD;
+      //   this.color = this.age === 0 ? app.config.ALIVE_COLOR : 'rgb(' + r + ',' + g + ',' + b + ')';
+      // } else {
+      //   deathCount = Math.floor(this.deathCount);
+      //   deadMulti = deathCount * app.config.DEAD_COLOR_MULTIPLYER;
+      //   r = 255;
+      //   g = b = deadMulti < app.config.DEAD_MULTI_COLOR_THRESHOLD ? app.config.DEAD_MULTI_COLOR_THRESHOLD - deadMulti : 0;
+      //   this.color = deadMulti === 0 ? app.config.DEAD_COLOR : 'rgb(' + r + ',' + g + ',' + b + ')';
+      // }
+      //
+
+      this.color = this.isAlive ? 'black' : 'white';
     },
 
     /**
@@ -121,9 +128,9 @@ define(function (app) {
     deathCount: 0,
 
     /**
-     * Times cell was killed
+     * Alive neighbors count
      *
-     * @property deathCount
+     * @property aliveNeighborsCount
      * @type Number
      */
     aliveNeighborsCount: 0,
@@ -139,11 +146,11 @@ define(function (app) {
     /**
      * Color of cell
      *
-     * @property willLiveNextStep
+     * @property color
      * @type String
      * @default 'white'
      */
-    color: app.config.DEAD_COLOR,
+    color: null,
 
     /**
      * X coordinate of cell

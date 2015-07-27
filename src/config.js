@@ -9,6 +9,7 @@
  */
 define(function () {
   return {
+    STEP: 0,
     UNIVERSE_WIDTH: 121,
     UNIVERSE_HEIGHT: 81,
     CELL_WIDTH: 6,

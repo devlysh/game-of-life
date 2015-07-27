@@ -7,12 +7,22 @@
  * @module app
  * @submodule gol
  */
-define(function (app) {
+define(function () {
+  var app;
+
   /**
    * @class GOL
    * @constructor
    */
-  var GOL = function () {};
+  var GOL = function (application) {
+    app = application;
+
+    this.minNeighborsToLive = app.config.MIN_NEIGHBORS_TO_LIVE;
+    this.maxNeighborsToLive = app.config.MAX_NEIGHBORS_TO_LIVE;
+    this.neighborsToBeBorn = app.config.NEIGHBORS_TO_BE_BORN;
+    this.timeInterval = app.config.TIME_INTERVAL;
+    this.step = app.config.STEP;
+  };
   GOL.prototype = {
     /**
      * Initiates Game Of Life
@@ -22,9 +32,10 @@ define(function (app) {
     init: function () {
       var savedGame = localStorage.getItem('savedGame');
       app.ui.appendTo(document.getElementById('zero'));
-      if (savedGame) {
+      if (savedGame && confirm('Do you want to load saved game?')) {
         this.load();
       } else {
+        window.localStorage.setItem('defaultGame', require('./default_game'));
         this.load('defaultGame');
       }
     },
@@ -72,8 +83,8 @@ define(function (app) {
           cell.age = 0;
         }
       });
-      this.rAFID = window.requestAnimationFrame(this.rAFStep.bind(this));
       this.setStepCounter(this.step + 1);
+      this.rAFID = window.requestAnimationFrame(this.rAFStep.bind(this));
     },
 
     /**
@@ -92,19 +103,19 @@ define(function (app) {
      */
     save: function (name) {
       name = name || 'savedGame';
-      localStorage.setItem(name, this.universe.toLocaleString());
+      localStorage.setItem(name, app.universe.toLocaleString());
     },
 
     /**
      * Loads game from LocalStorage
      *
      * @method load
-     * @param {String} name of game to load
+     * @param name {String} Name of game to load
      */
     load: function (name) {
       var data, loadedGame, sync;
       name = name || 'savedGame';
-      data = require('./default_game');
+      data = window.localStorage.getItem(name);
       if (data) {
         loadedGame = JSON.parse(data);
         this.killAllCells();
@@ -120,8 +131,8 @@ define(function (app) {
      * Toggles cell from alive to dead or inside out
      *
      * @method toggleCell
-     * @param {Number} x coordinate of cell
-     * @param {Number} y coordinate of cell
+     * @param x {Number} X coordinate of cell
+     * @param y {Number} Y coordinate of cell
      */
     toggleCell: function (x, y) {
       var cell = app.universe.space[x][y];
@@ -152,8 +163,8 @@ define(function (app) {
      * Changes life conditions
      *
      * @method changeLifeConditions
-     * @param {String} key condition to change
-     * @param {Number} value for changed condition
+     * @param key {String} Condition to change
+     * @param value {Number} Value of changed condition
      */
     changeLifeConditions: function (key, value) {
       app.ui[key + 'Element'].value = value;
@@ -191,14 +202,10 @@ define(function (app) {
      * Sets step counter value
      *
      * @method setStepCounter
-     * @param {Number} value to set
+     * @param value {Number} Sets given value to DOM element
      */
     setStepCounter: function (value) {
-      if (typeof value === 'number') {
-        this.step = value;
-      } else if (typeof value === 'undefined') {
-        value = this.step;
-      }
+      this.step = value;
       app.ui.stepDisplayElement.innerHTML = value;
     },
 
@@ -226,38 +233,38 @@ define(function (app) {
      * @type Number
      * @default 2
      */
-    minNeighborsToLive: app.config.MIN_NEIGHBORS_TO_LIVE,
+    minNeighborsToLive: null,
 
     /**
      * @property mmaxNeighborsToLive
      * @type Number
      * @default 3
      */
-    maxNeighborsToLive: app.config.MAX_NEIGHBORS_TO_LIVE,
+    maxNeighborsToLive: null,
 
     /**
      * @property neighborsToBeBorn
      * @type Number
      * @default 3
      */
-    neighborsToBeBorn: app.config.NEIGHBORS_TO_BE_BORN,
+    neighborsToBeBorn: null,
 
     /**
      * @property timeInterval
      * @type Number
      * @default 40
      */
-    timeInterval: app.config.TIME_INTERVAL,
+    timeInterval: null,
 
     /**
      * @property intervalID
-     * @type {Number}
+     * @type Number
      */
     intervalID: null,
 
     /**
      * @property rAFID
-     * @type {Number}
+     * @type Number
      */
     rAFID: null,
 
@@ -266,7 +273,7 @@ define(function (app) {
      * @type Number
      * @default 0
      */
-    step: 0
+    step: null
   };
 
   return GOL;

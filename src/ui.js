@@ -7,83 +7,106 @@
  * @module app
  * @submodule ui
  */
-define(function (app) {
-
-  /**
-   * Listener for 'Start' button
-   */
-  function startListener () {
-    app.gol.start.call(app.gol);
-  }
-
-  /**
-   * Listener for 'Stop' button
-   */
-  function stopListener () {
-    app.gol.stop.call(app.gol);
-  }
-
-  /**
-   * Listener for 'Step forward' button
-   */
-  function stepForwardListener () {
-    app.gol.stepForward.call(app.gol);
-  }
-
-  /**
-   * Listener for 'Clear' button
-   */
-  function clearListener () {
-    app.gol.killAllCells.call(app.gol);
-  }
-
-  /**
-   * Listener for 'Save' button
-   */
-  function saveListener () {
-    app.gol.save.call(app.gol);
-  }
-
-  /**
-   * Listener for 'Load' button
-   */
-  function loadListener () {
-    app.gol.load.call(app.gol);
-  }
-
-  /**
-   * Listener for inputs which changes life conditions
-   *
-   * @param {Event}
-   */
-  function changeLifeConditionsListener (event) {
-    var k, v,
-        target = event.target,
-        value = target.value;
-    if (target.name === 'min-to-live') { k = 'minNeighborsToLive'; v = Number(value); }
-    if (target.name === 'max-to-live') { k = 'maxNeighborsToLive'; v = Number(value); }
-    if (target.name === 'to-be-born') { k = 'neighborsToBeBorn'; v = Number(value); }
-    app.gol.changeLifeConditions.call(app.gol, k, v);
-  }
-
-  /**
-   * Listener for inputs which changes life conditions
-   *
-   * @param {Event}
-   */
-  function toggleCellListener (event) {
-    var fullCellWidth = app.config.CELL_WIDTH + app.config.BORDER_WIDTH,
-        fullCellHeight = app.config.CELL_HEIGHT + app.config.BORDER_WIDTH,
-        x = Math.floor((event.layerX - app.config.BORDER_WIDTH) / fullCellWidth),
-        y = Math.floor((event.layerY - app.config.BORDER_WIDTH) / fullCellHeight);
-    app.gol.toggleCell.call(app.gol, x, y);
-  }
+define(function () {
+  var app = {};
 
   /**
    * @class UI
    * @constructor
    */
-  var UI = function () {};
+  var UI = function (application) {
+    /**
+     * Link to 'app' object;
+     *
+     * @property app
+     * @private
+     */
+    app = application;
+
+    /**
+     * Listener for 'Start' button
+     *
+     * @function
+     */
+    this.startListener = function () {
+      app.gol.start.call(app.gol);
+    };
+
+    /**
+     * Listener for 'Stop' button
+     *
+     * @function
+     */
+    this.stopListener = function () {
+      app.gol.stop.call(app.gol);
+    };
+
+    /**
+     * Listener for 'Step forward' button
+     *
+     * @function
+     */
+    this.stepForwardListener = function () {
+      app.gol.stepForward.call(app.gol);
+    };
+
+    /**
+     * Listener for 'Clear' button
+     *
+     * @function
+     */
+    this.clearListener = function () {
+      app.gol.killAllCells.call(app.gol);
+    };
+
+    /**
+     * Listener for 'Save' button
+     *
+     * @function
+     */
+    this.saveListener = function () {
+      app.gol.save.call(app.gol);
+    };
+
+    /**
+     * Listener for 'Load' button
+     *
+     * @function
+     */
+    this.loadListener = function () {
+      app.gol.load.call(app.gol);
+    };
+
+    /**
+     * Listener for inputs which changes life conditions
+     *
+     * @function
+     * @param event {Event}
+     */
+    this.changeLifeConditionsListener = function (event) {
+      var k, v,
+          target = event.target,
+          value = target.value;
+      if (target.name === 'min-to-live') { k = 'minNeighborsToLive'; v = Number(value); }
+      if (target.name === 'max-to-live') { k = 'maxNeighborsToLive'; v = Number(value); }
+      if (target.name === 'to-be-born') { k = 'neighborsToBeBorn'; v = Number(value); }
+      app.gol.changeLifeConditions.call(app.gol, k, v);
+    };
+
+    /**
+     * Listener for inputs which changes life conditions
+     *
+     * @function
+     * @param event {Event}
+     */
+    this.toggleCellListener = function (event) {
+      var fullCellWidth = app.config.CELL_WIDTH + app.config.BORDER_WIDTH,
+          fullCellHeight = app.config.CELL_HEIGHT + app.config.BORDER_WIDTH,
+          x = Math.floor((event.layerX - app.config.BORDER_WIDTH) / fullCellWidth),
+          y = Math.floor((event.layerY - app.config.BORDER_WIDTH) / fullCellHeight);
+      app.gol.toggleCell.call(app.gol, x, y);
+    };
+  };
   UI.prototype = {
     /**
      * Returns new universe, game's field
@@ -100,7 +123,7 @@ define(function (app) {
       canvas.width = app.config.UNIVERSE_WIDTH * fullCellWidth + app.config.BORDER_WIDTH;
       canvas.height = app.config.UNIVERSE_HEIGHT * fullCellHeight + app.config.BORDER_WIDTH;
       canvas.classList.add('universe');
-      canvas.addEventListener('click', toggleCellListener);
+      canvas.addEventListener('click', this.toggleCellListener);
       this.universe  = canvas;
       this.universeContext = context;
       return canvas;
@@ -110,7 +133,7 @@ define(function (app) {
      * Returns menu
      *
      * @method createMenu
-     * @return {DocumentFragment} game menu
+     * @return {DocumentFragment} Game menu
      */
     createMenu: function () {
       var menu = document.getElementById('menu-template').content,
@@ -120,12 +143,12 @@ define(function (app) {
           clearButton = menu.querySelector('.clear-button'),
           loadButton = menu.querySelector('.load-button'),
           saveButton = menu.querySelector('.save-button');
-      startButton.addEventListener('click', startListener);
-      stopButton.addEventListener('click', stopListener);
-      stepButton.addEventListener('click', stepForwardListener);
-      clearButton.addEventListener('click', clearListener);
-      loadButton.addEventListener('click', loadListener);
-      saveButton.addEventListener('click', saveListener);
+      startButton.addEventListener('click', this.startListener);
+      stopButton.addEventListener('click', this.stopListener);
+      stepButton.addEventListener('click', this.stepForwardListener);
+      clearButton.addEventListener('click', this.clearListener);
+      loadButton.addEventListener('click', this.loadListener);
+      saveButton.addEventListener('click', this.saveListener);
       return menu;
     },
 
@@ -133,7 +156,7 @@ define(function (app) {
      * Returns display for game steps
      *
      * @method createStepDisplay
-     * @return {DocumentFragment} block with step display
+     * @return {DocumentFragment} Block with step display
      */
     createStepDisplay: function () {
       var stepDisplay = document.getElementById('step-display-template').content;
@@ -145,7 +168,7 @@ define(function (app) {
      * Returns input panel for changing game conditions
      *
      * @method createInputPanel
-     * @return {DocumentFragment} block with input panel
+     * @return {DocumentFragment} Block with input panel
      */
     createInputPanel: function () {
       var inputPanel = document.getElementById('input-panel-template').content,
@@ -155,9 +178,9 @@ define(function (app) {
       this.minNeighborsToLiveElement = minToLive;
       this.maxNeighborsToLiveElement = maxToLive;
       this.neighborsToBeBornElement = toBeBorn;
-      minToLive.addEventListener('input', changeLifeConditionsListener);
-      maxToLive.addEventListener('input', changeLifeConditionsListener);
-      toBeBorn.addEventListener('input', changeLifeConditionsListener);
+      minToLive.addEventListener('input', this.changeLifeConditionsListener);
+      maxToLive.addEventListener('input', this.changeLifeConditionsListener);
+      toBeBorn.addEventListener('input', this.changeLifeConditionsListener);
       minToLive.value = app.config.MIN_NEIGHBORS_TO_LIVE;
       maxToLive.value = app.config.MAX_NEIGHBORS_TO_LIVE;
       toBeBorn.value = app.config.NEIGHBORS_TO_BE_BORN;
@@ -168,7 +191,7 @@ define(function (app) {
      * Appends UI to certain element
      *
      * @method appendTo
-     * @param {HTMLElement} element which append UI to
+     * @param element {HTMLElement} Element which append UI to
      */
     appendTo: function (element) {
       var universe = app.ui.createUniverse(),
@@ -185,7 +208,7 @@ define(function (app) {
      * Link to step display element
      *
      * @property stepDisplayElement
-     * @type {HTMLElement}
+     * @type HTMLElement
      */
     stepDisplayElement: null,
 
@@ -193,7 +216,7 @@ define(function (app) {
      * Minimum neighbors amount of cell to live
      *
      * @property minNeighborsToLiveElement
-     * @type {HTMLElement}
+     * @type HTMLElement
      */
     minNeighborsToLiveElement: null,
 
@@ -201,7 +224,7 @@ define(function (app) {
      * Maximum neighbors amount of cell to live
      *
      * @property maxNeighborsToLiveElement
-     * @type {HTMLElement}
+     * @type HTMLElement
      */
     maxNeighborsToLiveElement: null,
 
@@ -209,7 +232,7 @@ define(function (app) {
      * Count of neighbors of cell to be born
      *
      * @property neighborsToBeBornElement
-     * @type {HTMLElement}
+     * @type HTMLElement
      */
     neighborsToBeBornElement: null,
 
@@ -225,7 +248,7 @@ define(function (app) {
      * Context of canvas element
      *
      * @property universeContext
-     * @type {CanvasRenderingContext2D}
+     * @type CanvasRenderingContext2D
      */
     universeContext: null
   };

@@ -4,21 +4,27 @@
  */
 
 /**
- * @namespace window
- * @property app
+ * @class APP
+ * @static
  */
+
+var App = (function () {
+  this.GOL = require('./game_of_life');
+  this.UI = require('./ui');
+  this.Universe = require('./universe');
+})();
+
 window.app = (function () {
-  var GOL, UI, Universe,
-      app = {};
+  var app = {};
 
   app.config = require('./config');
   GOL = require('./game_of_life', app);
   UI = require('./ui', app);
   Universe = require('./universe', app);
 
-  app.gol = new GOL();
-  app.ui = new UI();
-  app.universe = new Universe();
+  app.gol = new GOL(app);
+  app.ui = new UI(app);
+  app.universe = new Universe(app);
   app.gol.init();
 
   return app;

@@ -7,20 +7,22 @@
  * @module app
  * @submodule universe
  */
-define(function (app) {
-  var Cell = require('./cell', app);
+define(function () {
+  var Cell = require('./cell');
 
   /**
    * @class Universe
    * @constructor
    */
-  var Universe = function () {
+  var Universe = function (app) {
+    this.width = app.config.UNIVERSE_WIDTH;
+    this.height = app.config.UNIVERSE_HEIGHT;
     this.space = this.createSpace(this.width, this.height);
   };
   Universe.prototype = {
     /**
      * @method toLocaleString
-     * @return {Array} of data with alive cells coordinates and step count
+     * @return {Array} Array of data with alive cells coordinates and step count
      */
     toLocaleString: function () {
       var sync,
@@ -35,7 +37,7 @@ define(function (app) {
         }
       });
       result.space = plainSpace;
-      result.step = gol.step;
+      result.step = app.gol.step;
       return JSON.stringify(result);
     },
 
@@ -43,7 +45,7 @@ define(function (app) {
      * Creates new space
      *
      * @method createSpace
-     * @return {Array} new 2d array for cells
+     * @return {Array} New 2d array for cells
      */
     createSpace: function (width, height) {
       var x, y,
@@ -61,6 +63,11 @@ define(function (app) {
      * Makes some logic from callback function for each cell
      *
      * @method forEachCell
+     * @param callback {Function} is a callback function
+     *   It recives three parameters:
+     *   * @param cell {Cell} Game Of Life cell
+     *   * @param x {Number} X coordinate
+     *   * @param y {Number} Y coordinate
      * @return {Null}
      */
     forEachCell: function (callback) {
@@ -83,7 +90,7 @@ define(function (app) {
      * @property width
      * @type {Number}
      */
-    width: app.config.UNIVERSE_WIDTH,
+    width: null,
 
     /**
      * Universe height
@@ -91,7 +98,7 @@ define(function (app) {
      * @property height
      * @type {Number}
      */
-    height: app.config.UNIVERSE_HEIGHT,
+    height: null,
 
     /**
      * Space is 2d array with cells
