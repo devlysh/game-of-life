@@ -53,7 +53,7 @@ define(function () {
       for (x = 0; x < width; x++) {
         space[x] = [];
         for (y = 0; y < height; y++) {
-          space[x][y] = new Cell(x, y);
+          space[x][y] = new Cell(x, y, width, height);
         }
       }
       return space;

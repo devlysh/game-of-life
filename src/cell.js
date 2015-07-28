@@ -12,11 +12,14 @@ define(function () {
    * @class Cell
    * @param x {Number} X coordinate of cell
    * @param y {Number} Y coordinate of cell
+   * @param universeWidth {Number} Width of universe
+   * @param universeHeight {Number} Height of universe
    * @constructor
    */
-  var Cell = function (x, y) {
+  var Cell = function (x, y, universeWidth, universeHeight) {
     this.x = x;
     this.y = y;
+    this.neighborsCoordinates = this.detectNeighborsCoordinates(x, y, universeWidth-1, universeHeight-1);
   };
   Cell.prototype = {
     /**
@@ -63,44 +66,28 @@ define(function () {
       //   this.color = deadMulti === 0 ? app.config.DEAD_COLOR : 'rgb(' + r + ',' + g + ',' + b + ')';
       // }
       //
-
       this.color = this.isAlive ? 'black' : 'white';
     },
 
     /**
-     * @method findCellsAround
+     * @method detectNeighborsCoordinates
      * @return {Array} cells which are neighbors to current cell;
      */
-    findCellsAround: function () {
+    detectNeighborsCoordinates: function (x, y, maxX, maxY) {
       var MIN_X = 0,
           MIN_Y = 0,
-          MAX_X = app.universe.width-1,
-          MAX_Y = app.universe.height-1,
-          space = app.universe.space,
-          x = this.x,
-          y = this.y,
-          cellsAround = [];
-      if (x-1 >= MIN_X && y-1 >= MIN_Y ) { cellsAround.push(space[x-1][y-1]); }
-      if (x+1 <= MAX_X && y-1 >= MIN_Y ) { cellsAround.push(space[x+1][y-1]); }
-      if (x+1 <= MAX_X && y+1 <= MAX_Y ) { cellsAround.push(space[x+1][y+1]); }
-      if (x-1 >= MIN_X && y+1 <= MAX_Y ) { cellsAround.push(space[x-1][y+1]); }
-      if (y-1 >= MIN_Y ) { cellsAround.push(space[x][y-1]); }
-      if (x+1 <= MAX_X ) { cellsAround.push(space[x+1][y]); }
-      if (y+1 <= MAX_Y ) { cellsAround.push(space[x][y+1]); }
-      if (x-1 >= MIN_X ) { cellsAround.push(space[x-1][y]); }
-      return cellsAround;
-    },
-
-    /**
-     * @method calculateAliveNeighbors
-     * @return {Number} count of alive neighbors
-     */
-    calculateAliveNeighbors: function () {
-      return this.findCellsAround()
-        .filter(function(cell) {
-          return cell.isAlive;
-        })
-        .length;
+          MAX_X = maxX,
+          MAX_Y = maxY,
+          data = [];
+      if (x-1 >= MIN_X && y-1 >= MIN_Y ) { data.push({ x: x-1, y: y-1 }); }
+      if (x+1 <= MAX_X && y-1 >= MIN_Y ) { data.push({ x: x+1, y: y-1 }); }
+      if (x+1 <= MAX_X && y+1 <= MAX_Y ) { data.push({ x: x+1, y: y+1 }); }
+      if (x-1 >= MIN_X && y+1 <= MAX_Y ) { data.push({ x: x-1, y: y+1 }); }
+      if (y-1 >= MIN_Y ) { data.push({ x: x, y: y-1 }); }
+      if (x+1 <= MAX_X ) { data.push({ x: x+1, y: y }); }
+      if (y+1 <= MAX_Y ) { data.push({ x: x, y: y+1 }); }
+      if (x-1 >= MIN_X ) { data.push({ x: x-1, y: y }); }
+      return data;
     },
 
     /**
@@ -150,7 +137,7 @@ define(function () {
      * @type String
      * @default 'white'
      */
-    color: null,
+    color: '',
 
     /**
      * X coordinate of cell
@@ -158,7 +145,7 @@ define(function () {
      * @property x
      * @type Number
      */
-    x: null,
+    x: 0,
 
     /**
      * Y coordinate of cell
@@ -166,7 +153,13 @@ define(function () {
      * @property y
      * @type Number
      */
-    y: null
+    y: 0,
+
+    /**
+     * @property neighborsCoordinates
+     * @type Array
+     */
+    neighborsCoordinates: []
   };
 
   return Cell;

@@ -8,7 +8,7 @@
  * @submodule gol
  */
 define(function () {
-  var app;
+  var app, fullCellWidth, fullCellHeight, borderWidth, cellWidth, cellHeight;
 
   /**
    * @class GOL
@@ -16,6 +16,11 @@ define(function () {
    */
   var GOL = function (application) {
     app = application;
+    fullCellWidth = app.config.CELL_WIDTH + app.config.BORDER_WIDTH;
+    fullCellHeight = app.config.CELL_HEIGHT + app.config.BORDER_WIDTH;
+    borderWidth = app.config.BORDER_WIDTH;
+    cellWidth = app.config.CELL_WIDTH;
+    cellHeight = app.config.CELL_HEIGHT;
 
     this.minNeighborsToLive = app.config.MIN_NEIGHBORS_TO_LIVE;
     this.maxNeighborsToLive = app.config.MAX_NEIGHBORS_TO_LIVE;
@@ -68,31 +73,21 @@ define(function () {
      */
     stepForward: function () {
       var sync;
-      window.cancelAnimationFrame(this.rAFID);
       this.calculateNextStep();
       sync = app.universe.forEachCell(function (cell) {
         if (!cell.isAlive && cell.willLiveNextStep) {
           cell.revive();
-        } else if (cell.isAlive && cell.willLiveNextStep) {
-          cell.age++;
-        } else if (!cell.isAlive && !cell.willLiveNextStep) {
-          cell.deathCount -= cell.deathCount > app.config.DEATH_COUNT_WITHRAW ? app.config.DEATH_COUNT_WITHRAW : 0;
+        // } else if (cell.isAlive && cell.willLiveNextStep) {
+          // cell.age++;
+        // } else if (!cell.isAlive && !cell.willLiveNextStep) {
+          // cell.deathCount -= cell.deathCount > app.config.DEATH_COUNT_WITHRAW ? app.config.DEATH_COUNT_WITHRAW : 0;
         } else if (cell.isAlive && !cell.willLiveNextStep) {
           cell.kill();
-          this.deathCount++;
-          cell.age = 0;
+          // this.deathCount++;
+          // cell.age = 0;
         }
       });
       this.setStepCounter(this.step + 1);
-      this.rAFID = window.requestAnimationFrame(this.rAFStep.bind(this));
-    },
-
-    /**
-     * Commits rendering for next frame
-     *
-     * @method rAFStep
-     */
-    rAFStep: function () {
       this.render();
     },
 
@@ -181,7 +176,7 @@ define(function () {
     calculateNextStep: function () {
       var aliveNeighbors;
       app.universe.forEachCell(function (cell) {
-        aliveNeighbors = cell.calculateAliveNeighbors();
+        aliveNeighbors = this.calculateAliveNeighborsOf(cell);
         if (cell.isAlive) {
           if (aliveNeighbors < this.minNeighborsToLive || aliveNeighbors > this.maxNeighborsToLive) {
             cell.willLiveNextStep = false;
@@ -196,6 +191,23 @@ define(function () {
           }
         }
       }.bind(this));
+    },
+
+    /**
+     * @method calculateAliveNeighbors
+     * @param cell {Cell} Cell around witch alive neighbors will be found
+     * @return {Number} count of alive neighbors
+     */
+    calculateAliveNeighborsOf: function (cell) {
+      var space = app.universe.space;
+      return cell.neighborsCoordinates
+        .map(function (coorditanes) {
+          return space[coorditanes.x][coorditanes.y];
+        })
+        .filter(function(cell) {
+          return cell.isAlive;
+        })
+        .length;
     },
 
     /**
@@ -216,15 +228,13 @@ define(function () {
      */
     render: function () {
       var x, y,
-          context = app.ui.universeContext,
-          fullCellWidth = app.config.CELL_WIDTH + app.config.BORDER_WIDTH,
-          fullCellHeight = app.config.CELL_HEIGHT + app.config.BORDER_WIDTH;
+          context = app.ui.universeContext;
       app.universe.forEachCell(function (cell) {
-        x = cell.x * fullCellWidth + app.config.BORDER_WIDTH;
-        y = cell.y * fullCellWidth + app.config.BORDER_WIDTH;
+        x = cell.x * fullCellWidth + borderWidth;
+        y = cell.y * fullCellWidth + borderWidth;
         cell.calculateColor();
         context.fillStyle = cell.color;
-        context.fillRect(x, y, app.config.CELL_WIDTH, app.config.CELL_HEIGHT);
+        context.fillRect(x, y, cellWidth, cellHeight);
       });
     },
 
@@ -233,47 +243,40 @@ define(function () {
      * @type Number
      * @default 2
      */
-    minNeighborsToLive: null,
+    minNeighborsToLive: 0,
 
     /**
      * @property mmaxNeighborsToLive
      * @type Number
      * @default 3
      */
-    maxNeighborsToLive: null,
+    maxNeighborsToLive: 0,
 
     /**
      * @property neighborsToBeBorn
      * @type Number
      * @default 3
      */
-    neighborsToBeBorn: null,
+    neighborsToBeBorn: 0,
 
     /**
      * @property timeInterval
      * @type Number
      * @default 40
      */
-    timeInterval: null,
+    timeInterval: 0,
 
     /**
      * @property intervalID
      * @type Number
      */
-    intervalID: null,
-
-    /**
-     * @property rAFID
-     * @type Number
-     */
-    rAFID: null,
+    intervalID: 0,
 
     /**
      * @property step
      * @type Number
-     * @default 0
      */
-    step: null
+    step: 0
   };
 
   return GOL;
