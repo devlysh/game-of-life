@@ -13,6 +13,11 @@ html, body {
       margin: 0 auto;
       display: block;
       cursor: pointer;
+      -webkit-user-select: none; /* Chrome/Safari */
+      -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* IE10+ */
+      -o-user-select: none;
+      user-select: none;
     }
 
     .menu {
@@ -26,9 +31,6 @@ html, body {
       .menu .button {
         padding: 10px 20px;
         margin: 0 5px;
-      }
-
-      .menu .button {
         outline-width: 0px;
         outline: none;
         width: 120px;

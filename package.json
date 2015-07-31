@@ -1,0 +1,35 @@
+{
+  "name": "game_of_life",
+  "version": "1.0.0",
+  "description": "Game of Life game",
+  "main": "spec/support/environment.js",
+  "dependencies": {},
+  "devDependencies": {
+    "jasmine-core": "^2.3.4",
+    "jsdom": "^5.6.1",
+    "karma": "^0.13.3",
+    "karma-chrome-launcher": "^0.2.0",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-jasmine": "^0.3.6",
+    "q": "^1.4.1"
+  },
+  "scripts": {
+    "test": "node node_modules/karma/bin/karma start test/karma.conf.js",
+    "test-single-run": "node node_modules/karma/bin/karma start test/karma.conf.js  --single-run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nanoraptorok/game_of_life.git"
+  },
+  "keywords": [
+    "game",
+    "of",
+    "life"
+  ],
+  "author": "Artem Devlysh",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nanoraptorok/game_of_life/issues"
+  },
+  "homepage": "https://github.com/nanoraptorok/game_of_life#readme"
+}
