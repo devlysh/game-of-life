@@ -54,7 +54,11 @@
 
       /**
        * @method detectNeighborsCoordinates
-       * @return {Array} cells which are neighbors to current cell;
+       * @param {Number} x X coordinate of the cell
+       * @param {Number} y Y coordinate of the cell
+       * @param {Number} maxX Maximum available X coordinate in the universe
+       * @param {Number} maxY Maximum available Y coordinate in the universe
+       * @return {Array} cells which are neighbors to current cell
        */
       detectNeighborsCoordinates: function (x, y, maxX, maxY) {
         var MIN_X = 0,
@@ -147,6 +151,4 @@
 
     return Cell;
   });
-
-  console.log('Cell loaded');
  })();

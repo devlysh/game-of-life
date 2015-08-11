@@ -4,4 +4,3 @@
  */
 
 G.createApp('gameOfLife');
-console.log('App loaded');

@@ -23,4 +23,3 @@ G.app('gameOfLife').configure({
   ALIVE_COLOR: 'black',
   DEAD_COLOR: 'white'
 });
-console.log('Config loaded');

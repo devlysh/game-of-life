@@ -23,10 +23,9 @@
        * @return {Array} Array of data with alive cells coordinates and step count
        */
       toLocaleString: function () {
-        var sync,
-            result = {},
+        var result = {},
             plainSpace = [];
-        sync = this.forEachCell(function (cell, x, y) {
+        this.forEachCell(function (cell) {
           if (cell.isAlive) {
             plainSpace.push({
               x: cell.x,
@@ -61,12 +60,7 @@
        * Makes some logic from callback function for each cell
        *
        * @method forEachCell
-       * @param callback {Function} is a callback function
-       *   It recives three parameters:
-       *   * @param cell {Cell} Game Of Life cell
-       *   * @param x {Number} X coordinate
-       *   * @param y {Number} Y coordinate
-       * @return {Null}
+       * @param {Universe~ForEachCellCb} callback Callback function for each cell
        */
       forEachCell: function (callback) {
         var x, y, cell,
@@ -76,11 +70,17 @@
         for (x = 0; x < width; x++) {
           for (y = 0; y < height; y++) {
             cell = space[x][y];
-            callback.apply(cell, [cell, x, y]);
+            callback.call(this, cell);
           }
         }
-        return null;
       },
+
+      /**
+       * Called for each cell
+       *
+       * @callback Universe~ForEachCellCb
+       * @param {Cell} cell Cell in universe
+       */
 
       /**
        * Universe width
@@ -109,6 +109,4 @@
 
     return Universe;
   });
-
-  console.log('Universe loaded');
 })();

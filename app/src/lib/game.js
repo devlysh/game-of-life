@@ -70,9 +70,8 @@
        * @method stepForward
        */
       stepForward: function () {
-        var sync;
         this.calculateNextStep();
-        sync = GOL.module('universe').forEachCell(function (cell) {
+        GOL.module('universe').forEachCell(function (cell) {
           if (!cell.isAlive && cell.willLiveNextStep) {
             cell.revive();
           } else if (cell.isAlive && !cell.willLiveNextStep) {
@@ -100,14 +99,14 @@
        * @param name {String} Name of game to load
        */
       load: function (name) {
-        var data, loadedGame, sync;
+        var data, loadedGame;
         name = name || 'savedGame';
         data = window.localStorage.getItem(name);
         if (data) {
           loadedGame = JSON.parse(data);
           this.killAllCells();
           this.setStepCounter(loadedGame.step);
-          sync = loadedGame.space.forEach(function (cell) {
+          loadedGame.space.forEach(function (cell) {
             GOL.module('universe').space[cell.x][cell.y].revive();
           }.bind(this));
           this.render();
@@ -166,21 +165,15 @@
        * @method calculateNextStep
        */
       calculateNextStep: function () {
-        var aliveNeighbors;
+        var aliveNeighbors, willDie, willBeBorn;
         GOL.module('universe').forEachCell(function (cell) {
           aliveNeighbors = this.calculateAliveNeighborsOf(cell);
+          willDie = aliveNeighbors < this.minNeighborsToLive || aliveNeighbors > this.maxNeighborsToLive;
+          willBeBorn = aliveNeighbors === this.neighborsToBeBorn;
           if (cell.isAlive) {
-            if (aliveNeighbors < this.minNeighborsToLive || aliveNeighbors > this.maxNeighborsToLive) {
-              cell.willLiveNextStep = false;
-            } else {
-              cell.willLiveNextStep = true;
-            }
+            cell.willLiveNextStep = willDie ? false : true;
           } else {
-            if (aliveNeighbors === this.neighborsToBeBorn) {
-              cell.willLiveNextStep = true;
-            } else {
-              cell.willLiveNextStep = false;
-            }
+            cell.willLiveNextStep = willBeBorn ? true : false;
           }
         }.bind(this));
       },
@@ -193,8 +186,8 @@
       calculateAliveNeighborsOf: function (cell) {
         var space = GOL.module('universe').space;
         return cell.neighborsCoordinates
-          .map(function (coorditanes) {
-            return space[coorditanes.x][coorditanes.y];
+          .map(function (coordinates) {
+            return space[coordinates.x][coordinates.y];
           })
           .filter(function(cell) {
             return cell.isAlive;
@@ -235,21 +228,21 @@
        * @type Number
        * @default 2
        */
-      minNeighborsToLive: 0,
+      minNeighborsToLive: 2,
 
       /**
        * @property mmaxNeighborsToLive
        * @type Number
        * @default 3
        */
-      maxNeighborsToLive: 0,
+      maxNeighborsToLive: 3,
 
       /**
        * @property neighborsToBeBorn
        * @type Number
        * @default 3
        */
-      neighborsToBeBorn: 0,
+      neighborsToBeBorn: 3,
 
       /**
        * @property timeInterval
@@ -273,6 +266,4 @@
 
     return Game;
   });
-
-  console.log('Game loaded');
 })();

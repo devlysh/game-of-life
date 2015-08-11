@@ -105,7 +105,7 @@
        * @return {HTMLCanvasElement}
        */
       createUniverse: function () {
-        var i, j, fullCellWidth, fullCellHeight,
+        var fullCellWidth, fullCellHeight,
             canvas = document.createElement('canvas'),
             context = canvas.getContext('2d');
         fullCellWidth = GOL.config.CELL_WIDTH + GOL.config.BORDER_WIDTH;
@@ -245,6 +245,4 @@
 
     return UI;
   });
-
-  console.log('UI loaded');
 })();
