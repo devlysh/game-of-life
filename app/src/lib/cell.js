@@ -3,7 +3,7 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
- (function () {
+(function () {
   var GOL = G.app('gameOfLife');
 
   GOL.sandbox.add('Cell', function () {
