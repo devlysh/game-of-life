@@ -4,12 +4,17 @@
  */
 
 window.gol = (function() {
-  var GOL = G.app('gameOfLife');
+  var gol = G.app('gameOfLife');
 
-  GOL.createModule('game', GOL.sandbox.get('Game'));
-  GOL.createModule('ui', GOL.sandbox.get('UI'));
-  GOL.createModule('universe', GOL.sandbox.get('Universe'));
+  gol.createModule('game', gol.sandbox.get('Game'));
+  gol.createModule('ui', gol.sandbox.get('UI'));
+  gol.createModule('universe', gol.sandbox.get('Universe'));
 
-  GOL.module('game').init();
-  return GOL;
+  gol.sandbox.remove('Game');
+  gol.sandbox.remove('UI');
+  gol.sandbox.remove('Universe');
+  gol.sandbox.remove('Cell');
+
+  gol.module('game').init();
+  return gol;
 })();

@@ -4,86 +4,86 @@
  */
 
 (function () {
-  var GOL = G.app('gameOfLife');
+  var gol = G.app('gameOfLife'),
+      universeWidth = gol.config.UNIVERSE_WIDTH,
+      universeHeight = gol.config.UNIVERSE_HEIGHT;
 
-  GOL.sandbox.add('Cell', function () {
+  /**
+   * @class Cell
+   * @param x {Number} X coordinate of cell
+   * @param y {Number} Y coordinate of cell
+   * @constructor
+   */
+  var Cell = function (x, y) {
+    this.x = x;
+    this.y = y;
+    this.neighborsCoordinates = this.detectNeighborsCoordinates(x, y, universeWidth-1, universeHeight-1);
+  };
+
+  Cell.prototype = {
     /**
-     * @class Cell
-     * @param x {Number} X coordinate of cell
-     * @param y {Number} Y coordinate of cell
-     * @param universeWidth {Number} Width of universe
-     * @param universeHeight {Number} Height of universe
-     * @constructor
+     * Revives cell
+     *
+     * @method revive
      */
-    var Cell = function (x, y, universeWidth, universeHeight) {
-      this.x = x;
-      this.y = y;
-      this.neighborsCoordinates = this.detectNeighborsCoordinates(x, y, universeWidth-1, universeHeight-1);
-    };
-    Cell.prototype = {
-      /**
-       * Revives cell
-       *
-       * @method revive
-       */
-      revive: function () {
-        if (!this.isAlive) {
-          this.isAlive = true;
-        }
-      },
+    revive: function () {
+      if (!this.isAlive) {
+        this.isAlive = true;
+      }
+    },
 
-      /**
-       * Kills cell
-       *
-       * @method kill
-       */
-      kill: function () {
-        if (this.isAlive) {
-          this.isAlive = false;
-        }
-      },
+    /**
+     * Kills cell
+     *
+     * @method kill
+     */
+    kill: function () {
+      if (this.isAlive) {
+        this.isAlive = false;
+      }
+    },
 
-      /**
-       * Calculates color of cell
-       *
-       * @method calculateColor
-       */
-      calculateColor: function () {
-        this.color = this.isAlive ? 'black' : 'white';
-      },
+    /**
+     * Calculates color of cell
+     *
+     * @method calculateColor
+     */
+    calculateColor: function () {
+      this.color = this.isAlive ? 'black' : 'white';
+    },
 
-      /**
-       * @method detectNeighborsCoordinates
-       * @param {Number} x X coordinate of the cell
-       * @param {Number} y Y coordinate of the cell
-       * @param {Number} maxX Maximum available X coordinate in the universe
-       * @param {Number} maxY Maximum available Y coordinate in the universe
-       * @return {Array} cells which are neighbors to current cell
-       */
-      detectNeighborsCoordinates: function (x, y, maxX, maxY) {
-        var MIN_X = 0,
-            MIN_Y = 0,
-            MAX_X = maxX,
-            MAX_Y = maxY,
-            data = [];
-        if (x-1 >= MIN_X && y-1 >= MIN_Y ) { data.push({ x: x-1, y: y-1 }); }
-        if (x+1 <= MAX_X && y-1 >= MIN_Y ) { data.push({ x: x+1, y: y-1 }); }
-        if (x+1 <= MAX_X && y+1 <= MAX_Y ) { data.push({ x: x+1, y: y+1 }); }
-        if (x-1 >= MIN_X && y+1 <= MAX_Y ) { data.push({ x: x-1, y: y+1 }); }
-        if (y-1 >= MIN_Y ) { data.push({ x: x, y: y-1 }); }
-        if (x+1 <= MAX_X ) { data.push({ x: x+1, y: y }); }
-        if (y+1 <= MAX_Y ) { data.push({ x: x, y: y+1 }); }
-        if (x-1 >= MIN_X ) { data.push({ x: x-1, y: y }); }
-        return data;
-      },
+    /**
+     * @method detectNeighborsCoordinates
+     * @param {Number} x X coordinate of the cell
+     * @param {Number} y Y coordinate of the cell
+     * @param {Number} maxX Maximum available X coordinate in the universe
+     * @param {Number} maxY Maximum available Y coordinate in the universe
+     * @return {Array} cells which are neighbors to current cell
+     */
+    detectNeighborsCoordinates: function (x, y, maxX, maxY) {
+      var MIN_X = 0,
+          MIN_Y = 0,
+          MAX_X = maxX,
+          MAX_Y = maxY,
+          data = [];
+      if (x-1 >= MIN_X && y-1 >= MIN_Y ) { data.push({ x: x-1, y: y-1 }); }
+      if (x+1 <= MAX_X && y-1 >= MIN_Y ) { data.push({ x: x+1, y: y-1 }); }
+      if (x+1 <= MAX_X && y+1 <= MAX_Y ) { data.push({ x: x+1, y: y+1 }); }
+      if (x-1 >= MIN_X && y+1 <= MAX_Y ) { data.push({ x: x-1, y: y+1 }); }
+      if (y-1 >= MIN_Y ) { data.push({ x: x, y: y-1 }); }
+      if (x+1 <= MAX_X ) { data.push({ x: x+1, y: y }); }
+      if (y+1 <= MAX_Y ) { data.push({ x: x, y: y+1 }); }
+      if (x-1 >= MIN_X ) { data.push({ x: x-1, y: y }); }
+      return data;
+    },
 
-      /**
-       * Shows if cell is alive
-       *
-       * @property isAlive
-       * @type Boolean
-       */
-      isAlive: false,
+    /**
+     * Shows if cell is alive
+     *
+     * @property isAlive
+     * @type Boolean
+     */
+    isAlive: false,
 
       /**
        * Age of alive cell
@@ -101,54 +101,53 @@
        */
       deathCount: 0,
 
-      /**
-       * Alive neighbors count
-       *
-       * @property aliveNeighborsCount
-       * @type Number
-       */
-      aliveNeighborsCount: 0,
+    /**
+     * Alive neighbors count
+     *
+     * @property aliveNeighborsCount
+     * @type Number
+     */
+    aliveNeighborsCount: 0,
 
-      /**
-       * Shows if cell will live next step
-       *
-       * @property willLiveNextStep
-       * @type Boolean
-       */
-      willLiveNextStep: false,
+    /**
+     * Shows if cell will live next step
+     *
+     * @property willLiveNextStep
+     * @type Boolean
+     */
+    willLiveNextStep: false,
 
-      /**
-       * Color of cell
-       *
-       * @property color
-       * @type String
-       * @default 'white'
-       */
-      color: '',
+    /**
+     * Color of cell
+     *
+     * @property color
+     * @type String
+     * @default 'white'
+     */
+    color: '',
 
-      /**
-       * X coordinate of cell
-       *
-       * @property x
-       * @type Number
-       */
-      x: 0,
+    /**
+     * X coordinate of cell
+     *
+     * @property x
+     * @type Number
+     */
+    x: 0,
 
-      /**
-       * Y coordinate of cell
-       *
-       * @property y
-       * @type Number
-       */
-      y: 0,
+    /**
+     * Y coordinate of cell
+     *
+     * @property y
+     * @type Number
+     */
+    y: 0,
 
-      /**
-       * @property neighborsCoordinates
-       * @type Array
-       */
-      neighborsCoordinates: []
-    };
+    /**
+     * @property neighborsCoordinates
+     * @type Array
+     */
+    neighborsCoordinates: []
+  };
 
-    return Cell;
-  });
+  gol.sandbox.add('Cell', Cell);
  })();

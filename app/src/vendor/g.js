@@ -3,7 +3,7 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
-window.G = (function (w) {
+window.G = (function () {
 
   /**
    * @class G
@@ -23,7 +23,7 @@ window.G = (function (w) {
       if (this.apps.hasOwnProperty(name)) {
         return this.apps[name];
       } else {
-        throw new Error('Unable to found app "' + name + '"');
+        throw Error('Unable to found app "' + name + '"');
       }
     },
 
@@ -39,7 +39,7 @@ window.G = (function (w) {
         this.apps[name] = app;
         return app;
       } else {
-        throw new Error('App "' + name + '" already exists');
+        throw Error('App "' + name + '" already exists');
       }
     },
 
@@ -52,7 +52,7 @@ window.G = (function (w) {
       if (this.apps.hasOwnProperty(name)) {
         delete this.apps[name];
       } else {
-        throw new Error('Unable to find app "' + name + '"');
+        throw Error('Unable to find app "' + name + '"');
       }
     }
   };
@@ -92,24 +92,29 @@ window.G = (function (w) {
      * @method createModule
      * @param {String} name
      * @param {Function} constructor
-     * @return {Module}
+     * @return {*}
      */
     createModule: function (name, constructor) {
-      var module = new constructor();
-      this.modules[name] = module;
-      return module;
+      var module;
+      if (!this.modules.hasOwnProperty(name)) {
+        module = new constructor();
+        this.modules[name] = module;
+        return module;
+      } else {
+        throw Error('Module ' + name + ' already exists');
+      }
     },
 
     /**
      * @method module
      * @param {String} name
-     * @return {Module}
+     * @return {*}
      */
     module: function (name) {
       if (this.modules.hasOwnProperty(name)) {
         return this.modules[name];
       } else {
-        throw new Error('Unable to find module "' + name + '"');
+        throw Error('Unable to find module "' + name + '"');
       }
     },
 
@@ -119,7 +124,7 @@ window.G = (function (w) {
      */
     configure: function (config) {
       this.config = config;
-    },
+    }
   };
 
   /**
@@ -133,17 +138,11 @@ window.G = (function (w) {
      * @method add
      */
     add: function (name, value) {
-      var result;
-      if (typeof value === 'function') {
-        result = value();
-      } else {
-        result = value;
-      }
       if (!this.hasOwnProperty(name)) {
-        this[name] = result;
-        return this[name];
+        this[name] = value;
+        return value;
       } else {
-        throw new Error('Sandbox element "' + name + '" already exists');
+        throw Error('Sandbox element "' + name + '" already exists');
       }
     },
 
@@ -154,7 +153,7 @@ window.G = (function (w) {
       if (this.hasOwnProperty(name)) {
         delete this[name];
       } else {
-        throw new Error('Unable to find element "' + name + '"');
+        throw Error('Unable to find element "' + name + '"');
       }
     },
 
@@ -165,7 +164,7 @@ window.G = (function (w) {
       if (this.hasOwnProperty(name)) {
         return this[name];
       } else {
-        throw new Error('Unable to find element "' + name + '"');
+        throw Error('Unable to find element "' + name + '"');
       }
     },
 
@@ -182,10 +181,10 @@ window.G = (function (w) {
       if (this.hasOwnProperty(name)) {
         this[name] = result;
       } else {
-        throw new Error('Unable to find element "' + name + '"');
+        throw Error('Unable to find element "' + name + '"');
       }
     }
   };
 
   return new G();
-})(window);
+})();

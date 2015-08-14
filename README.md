@@ -1,5 +1,5 @@
 # Game of Life
-**Implementation on JavaScript**
+**Implementation on vanilla JavaScript**
 
 Working implementation without proper UI and features.
 
