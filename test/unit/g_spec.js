@@ -60,7 +60,7 @@ describe('G.', function() {
       describe('createModule', function () {
         it('should create new module with constructor', function () {
           spyOn(testModule, 'foo').and.callThrough();
-          expect(testModule instanceof MockConstructor).toBe(true);
+          expect(testModule instanceof MockConstructor).toBeTruthy();
           expect(testModule.bar()).toBe(testElement);
           expect(testModule.foo).toHaveBeenCalled();
           expect(testModule.foo()).toBe(testElement);
