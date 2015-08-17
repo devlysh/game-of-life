@@ -4,7 +4,7 @@ module.exports = function(config){
     basePath : '../',
 
     files : [
-      'app/src/vendor/g.js',
+      'app/src/lib/vendor/g.js',
       // 'app/src/index.js',
       'test/unit/**/*.js'
     ],
@@ -13,11 +13,12 @@ module.exports = function(config){
 
     frameworks: ['jasmine'],
 
-    browsers : ['Firefox'],
+    browsers : ['Firefox', 'Chrome', 'Safari'],
 
     plugins : [
       'karma-chrome-launcher',
       'karma-firefox-launcher',
+      'karma-safari-launcher',
       'karma-jasmine'
     ],
 

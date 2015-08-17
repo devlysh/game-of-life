@@ -20,9 +20,8 @@ describe('G.', function() {
 
   describe('method destroyApp', function() {
     it('should remove App with certain name', function () {
-      var testApp2,
-          appName2 = 'TestAppName2';
-      testApp2 = G.createApp(appName2);
+      var appName2 = 'TestAppName2';
+      G.createApp(appName2);
       expect(G.apps[appName2]).toBeDefined();
       G.destroyApp(appName2);
       expect(G.apps[appName2]).toBeUndefined();
@@ -92,9 +91,7 @@ describe('G.', function() {
           someContent = 'someContent';
 
       beforeEach(function () {
-        testApp.sandbox.add(someElement, function () {
-          return someContent;
-        });
+        testApp.sandbox.add(someElement, someContent);
       });
 
       describe('method add', function () {
