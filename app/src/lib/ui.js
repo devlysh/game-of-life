@@ -3,6 +3,7 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
+//TODO: Implement changing life conditions by keyboard
 define(function (require) {
   var config = require('./config.js');
 
@@ -107,16 +108,17 @@ define(function (require) {
   };
 
   UI.prototype = {
+
     /**
      * Returns document fragment by template string
      *
      * @method parseTemplate
-     * @param {String} templateStr String template
-     * @return {DocumentFragment} DOM fragment parsed from template
+     * @param {String} str String template
+     * @return {DocumentFragment} DOM fragment parsed from string template
      */
-    parseTemplate: function (templateStr) {
+    parseTemplate: function (str) {
       var element = document.createElement('template');
-      element.innerHTML = templateStr;
+      element.innerHTML = str;
       return element.content;
     },
 
@@ -155,11 +157,12 @@ define(function (require) {
     /**
      * Returns menu
      *
-     * @method createMenu
+     * @method createButtonsMenu
      * @return {DocumentFragment} Game menu
      */
-    createMenu: function () {
-      var menu, template, startButton, stopButton, stepButton, clearButton, loadButton, saveButton, menuTemplateString;
+    createButtonsMenu: function () {
+      //TODO: Merge 'start' and 'stop' buttons
+      var menu, template, startButton, stopButton, stepButton, clearButton, loadButton, saveButton;
       template = '' +
         '<div class="menu">' +
         '  <button class="button start-button">START</button>' +
@@ -210,6 +213,7 @@ define(function (require) {
      * @return {DocumentFragment} Block with input panel
      */
     createInputPanel: function () {
+      //TODO: Implement cool inputs
       var inputPanel, template, minToLiveElement, maxToLiveElement, toBeBornElement;
       template = '' +
         '<div class="input-panel">' +
@@ -257,7 +261,7 @@ define(function (require) {
     appendTo: function (element) {
       var universe, menu, stepDisplay, inputPanel;
       universe = this.createUniverse();
-      menu = this.createMenu();
+      menu = this.createButtonsMenu();
       stepDisplay = this.createStepDisplay();
       inputPanel = this.createInputPanel();
       element.appendChild(universe);

@@ -21,11 +21,12 @@ define(function (require) {
     this.timeInterval = config.TIME_INTERVAL;
     this.neighborsToBeBorn = config.NEIGHBORS_TO_BE_BORN;
     this.step = config.STEP;
-    this.forEachCell = this.forEachCell.bind(this);
     this.stepForward = this.stepForward.bind(this);
+    this.forEachCell = this.forEachCell.bind(this);
   };
 
   Game.prototype = {
+
     /**
      * Initiates Game Of Life
      *
@@ -43,12 +44,6 @@ define(function (require) {
      * @param {Game~ForEachCellCb} callback Callback function for each cell
      */
 
-    /**
-     * Called for each cell
-     *
-     * @callback Game~ForEachCellCb
-     * @param {Cell} cell Cell in universe
-     */
     forEachCell: function (callback) {
       var x, y, cell, width, height, space;
       width = this.universe.width;
@@ -57,6 +52,12 @@ define(function (require) {
       for (x = 0; x < width; x++) {
         for (y = 0; y < height; y++) {
           cell = space[x][y];
+          /**
+           * Called for each cell
+           *
+           * @callback Game~ForEachCellCb
+           * @param {Cell} cell Cell in canvas
+           */
           callback.call(this, cell);
         }
       }
@@ -143,9 +144,8 @@ define(function (require) {
      * @param name {String} Name of game to load
      */
     load: function (name) {
-      var data, loadedGame, defaultGame;
-      defaultGame = require('./default_game.js');
-      data = name ? localStorage.getItem(name) : defaultGame;
+      var data, loadedGame;
+      data = name ? localStorage.getItem(name) : require('./default_game.js');
       if (data) {
         loadedGame = JSON.parse(data);
         this.killAllCells();
@@ -154,6 +154,8 @@ define(function (require) {
           this.universe.space[cell.x][cell.y].revive();
         }.bind(this));
         this.render();
+      } else {
+        throw Error('Could not load game');
       }
     },
 
@@ -247,9 +249,7 @@ define(function (require) {
      */
     setStepCounter: function (value) {
       this.step = value;
-      if (this.ui.stepDisplaySpot) {
-        this.ui.stepDisplaySpot.innerHTML = value;
-      }
+      this.ui.stepDisplaySpot.innerHTML = value;
     },
 
     /**
@@ -264,15 +264,13 @@ define(function (require) {
       borderWidth = config.BORDER_WIDTH;
       cellWidth = config.CELL_WIDTH;
       cellHeight = config.CELL_HEIGHT;
-      context = this.ui.universeContext;
+      context = this.ui.canvasContext;
       this.forEachCell(function (cell) {
         x = cell.x * fullCellWidth + borderWidth;
         y = cell.y * fullCellHeight + borderWidth;
         cell.calculateColor();
-        if (context) {
-          context.fillStyle = cell.color;
-          context.fillRect(x, y, cellWidth, cellHeight);
-        }
+        context.fillStyle = cell.color;
+        context.fillRect(x, y, cellWidth, cellHeight);
       });
     },
 
@@ -300,7 +298,7 @@ define(function (require) {
        * @type Number
        * @default 3
        */
-      neighborsToBeBorn: 3,
+      neighborsToBeBorn: 3
     },
 
 

@@ -17,6 +17,7 @@ define(function (require) {
   };
 
   Universe.prototype = {
+
     /**
      * Creates new space
      *

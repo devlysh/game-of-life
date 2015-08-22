@@ -13,15 +13,13 @@ define(function (require) {
    * @constructor
    */
   var Cell = function (x, y) {
-    var universeWidth, universeHeight;
-    universeWidth = config.UNIVERSE_WIDTH;
-    universeHeight = config.UNIVERSE_HEIGHT;
     this.x = x;
     this.y = y;
-    this.neighborsCoordinates = this.detectNeighborsCoordinates(x, y, universeWidth - 1, universeHeight - 1);
+    this.neighborsCoordinates = this._detectNeighborsCoordinates();
   };
 
   Cell.prototype = {
+
     /**
      * Revives cell
      *
@@ -50,23 +48,23 @@ define(function (require) {
      * @method calculateColor
      */
     calculateColor: function () {
+      //TODO: Implement colorful game
       this.color = this.isAlive ? 'black' : 'white';
     },
 
     /**
-     * @method detectNeighborsCoordinates
-     * @param {Number} x X coordinate of the cell
-     * @param {Number} y Y coordinate of the cell
-     * @param {Number} maxX Maximum available X coordinate in the universe
-     * @param {Number} maxY Maximum available Y coordinate in the universe
+     * @method _detectNeighborsCoordinates
      * @return {Array} cells which are neighbors to current cell
      */
-    detectNeighborsCoordinates: function (x, y, maxX, maxY) {
-      var MIN_X = 0,
-        MIN_Y = 0,
-        MAX_X = maxX,
-        MAX_Y = maxY,
-        data = [];
+    _detectNeighborsCoordinates: function () {
+      var x, y, MIN_X, MIN_Y, MAX_X, MAX_Y, data;
+      x = this.x;
+      y = this.y;
+      MIN_X = 0;
+      MIN_Y = 0;
+      MAX_X = config.UNIVERSE_WIDTH - 1;
+      MAX_Y = config.UNIVERSE_HEIGHT - 1;
+      data = [];
       if (x - 1 >= MIN_X && y - 1 >= MIN_Y) {
         data.push({x: x - 1, y: y - 1});
       }
