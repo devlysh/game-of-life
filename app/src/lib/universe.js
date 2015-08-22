@@ -3,17 +3,16 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
-(function () {
-  var gol = G.app('gameOfLife'),
-      Cell = gol.sandbox.get('Cell');
+define(function (require) {
+  var config = require('./config.js');
 
   /**
    * @class Universe
    * @constructor
    */
   var Universe = function () {
-    this.width = gol.config.UNIVERSE_WIDTH;
-    this.height = gol.config.UNIVERSE_HEIGHT;
+    this.width = config.UNIVERSE_WIDTH;
+    this.height = config.UNIVERSE_HEIGHT;
     this.space = this._createSpace(this.width, this.height);
   };
 
@@ -25,8 +24,9 @@
      * @return {Array} New 2d array for cells
      */
     _createSpace: function (width, height) {
-      var x, y,
-          space = [];
+      var x, y, space, Cell;
+      space = [];
+      Cell = require('./cell.js');
       for (x = 0; x < width; x++) {
         space[x] = [];
         for (y = 0; y < height; y++) {
@@ -35,13 +35,6 @@
       }
       return space;
     },
-
-    /**
-     * Called for each cell
-     *
-     * @callback Universe~ForEachCellCb
-     * @param {Cell} cell Cell in universe
-     */
 
     /**
      * Universe width
@@ -68,5 +61,5 @@
     space: null
   };
 
-  gol.sandbox.add('Universe', Universe);
-})();
+  return Universe;
+});

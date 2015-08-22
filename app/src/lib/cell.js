@@ -3,10 +3,8 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
-(function () {
-  var gol = G.app('gameOfLife'),
-      universeWidth = gol.config.UNIVERSE_WIDTH,
-      universeHeight = gol.config.UNIVERSE_HEIGHT;
+define(function (require) {
+  var config = require('./config.js');
 
   /**
    * @class Cell
@@ -15,9 +13,12 @@
    * @constructor
    */
   var Cell = function (x, y) {
+    var universeWidth, universeHeight;
+    universeWidth = config.UNIVERSE_WIDTH;
+    universeHeight = config.UNIVERSE_HEIGHT;
     this.x = x;
     this.y = y;
-    this.neighborsCoordinates = this.detectNeighborsCoordinates(x, y, universeWidth-1, universeHeight-1);
+    this.neighborsCoordinates = this.detectNeighborsCoordinates(x, y, universeWidth - 1, universeHeight - 1);
   };
 
   Cell.prototype = {
@@ -62,18 +63,34 @@
      */
     detectNeighborsCoordinates: function (x, y, maxX, maxY) {
       var MIN_X = 0,
-          MIN_Y = 0,
-          MAX_X = maxX,
-          MAX_Y = maxY,
-          data = [];
-      if (x-1 >= MIN_X && y-1 >= MIN_Y ) { data.push({ x: x-1, y: y-1 }); }
-      if (x+1 <= MAX_X && y-1 >= MIN_Y ) { data.push({ x: x+1, y: y-1 }); }
-      if (x+1 <= MAX_X && y+1 <= MAX_Y ) { data.push({ x: x+1, y: y+1 }); }
-      if (x-1 >= MIN_X && y+1 <= MAX_Y ) { data.push({ x: x-1, y: y+1 }); }
-      if (y-1 >= MIN_Y ) { data.push({ x: x, y: y-1 }); }
-      if (x+1 <= MAX_X ) { data.push({ x: x+1, y: y }); }
-      if (y+1 <= MAX_Y ) { data.push({ x: x, y: y+1 }); }
-      if (x-1 >= MIN_X ) { data.push({ x: x-1, y: y }); }
+        MIN_Y = 0,
+        MAX_X = maxX,
+        MAX_Y = maxY,
+        data = [];
+      if (x - 1 >= MIN_X && y - 1 >= MIN_Y) {
+        data.push({x: x - 1, y: y - 1});
+      }
+      if (x + 1 <= MAX_X && y - 1 >= MIN_Y) {
+        data.push({x: x + 1, y: y - 1});
+      }
+      if (x + 1 <= MAX_X && y + 1 <= MAX_Y) {
+        data.push({x: x + 1, y: y + 1});
+      }
+      if (x - 1 >= MIN_X && y + 1 <= MAX_Y) {
+        data.push({x: x - 1, y: y + 1});
+      }
+      if (y - 1 >= MIN_Y) {
+        data.push({x: x, y: y - 1});
+      }
+      if (x + 1 <= MAX_X) {
+        data.push({x: x + 1, y: y});
+      }
+      if (y + 1 <= MAX_Y) {
+        data.push({x: x, y: y + 1});
+      }
+      if (x - 1 >= MIN_X) {
+        data.push({x: x - 1, y: y});
+      }
       return data;
     },
 
@@ -85,21 +102,21 @@
      */
     isAlive: false,
 
-      /**
-       * Age of alive cell
-       *
-       * @property age
-       * @type Number
-       */
-      age: 0,
+    /**
+     * Age of alive cell
+     *
+     * @property age
+     * @type Number
+     */
+    age: 0,
 
-      /**
-       * Times cell was killed
-       *
-       * @property deathCount
-       * @type Number
-       */
-      deathCount: 0,
+    /**
+     * Times cell was killed
+     *
+     * @property deathCount
+     * @type Number
+     */
+    deathCount: 0,
 
     /**
      * Alive neighbors count
@@ -149,5 +166,5 @@
     neighborsCoordinates: []
   };
 
-  gol.sandbox.add('Cell', Cell);
- })();
+  return Cell;
+});

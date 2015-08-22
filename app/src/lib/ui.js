@@ -3,15 +3,14 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
-(function () {
-  var gol = G.app('gameOfLife');
+define(function (require) {
+  var config = require('./config.js');
 
   /**
    * @class UI
    * @constructor
    */
-  var UI = function () {
-    var game = gol.module('game');
+  var UI = function (game) {
     /**
      * Listener for 'Start' button
      *
@@ -54,7 +53,7 @@
      * @function
      */
     this.saveListener = function () {
-      game.save.call(game);
+      game.save.call(game, 'savedGame');
     };
 
     /**
@@ -63,7 +62,7 @@
      * @function
      */
     this.loadListener = function () {
-      game.load.call(game);
+      game.load.call(game, 'savedGame');
     };
 
     /**
@@ -73,12 +72,21 @@
      * @param event {Event}
      */
     this.changeLifeConditionsListener = function (event) {
-      var k, v,
-          target = event.target,
-          value = target.value;
-      if (target.name === 'min-to-live') { k = 'minNeighborsToLive'; v = Number(value); }
-      if (target.name === 'max-to-live') { k = 'maxNeighborsToLive'; v = Number(value); }
-      if (target.name === 'to-be-born') { k = 'neighborsToBeBorn'; v = Number(value); }
+      var k, v, target, value;
+      target = event.target;
+      value = target.value;
+      if (target.name === 'min-to-live') {
+        k = 'minNeighborsToLive';
+        v = Number(value);
+      }
+      if (target.name === 'max-to-live') {
+        k = 'maxNeighborsToLive';
+        v = Number(value);
+      }
+      if (target.name === 'to-be-born') {
+        k = 'neighborsToBeBorn';
+        v = Number(value);
+      }
       game.changeLifeConditions.call(game, k, v);
     };
 
@@ -89,15 +97,29 @@
      * @param event {Event}
      */
     this.toggleCellListener = function (event) {
-      var fullCellWidth = gol.config.CELL_WIDTH + gol.config.BORDER_WIDTH,
-          fullCellHeight = gol.config.CELL_HEIGHT + gol.config.BORDER_WIDTH,
-          x = Math.floor((event.layerX - gol.config.BORDER_WIDTH) / fullCellWidth),
-          y = Math.floor((event.layerY - gol.config.BORDER_WIDTH) / fullCellHeight);
+      var fullCellWidth, fullCellHeight, x, y;
+      fullCellWidth = config.CELL_WIDTH + config.BORDER_WIDTH;
+      fullCellHeight = config.CELL_HEIGHT + config.BORDER_WIDTH;
+      x = Math.floor((event.layerX - config.BORDER_WIDTH) / fullCellWidth);
+      y = Math.floor((event.layerY - config.BORDER_WIDTH) / fullCellHeight);
       game.toggleCell.call(game, x, y);
     };
   };
 
   UI.prototype = {
+    /**
+     * Returns document fragment by template string
+     *
+     * @method parseTemplate
+     * @param {String} templateStr String template
+     * @return {DocumentFragment} DOM fragment parsed from template
+     */
+    parseTemplate: function (templateStr) {
+      var element = document.createElement('template');
+      element.innerHTML = templateStr;
+      return element.content;
+    },
+
     /**
      * Returns new universe, game's field
      *
@@ -105,18 +127,29 @@
      * @return {HTMLCanvasElement}
      */
     createUniverse: function () {
-      var fullCellWidth, fullCellHeight,
-          canvas = document.createElement('canvas'),
-          context = canvas.getContext('2d');
-      fullCellWidth = gol.config.CELL_WIDTH + gol.config.BORDER_WIDTH;
-      fullCellHeight = gol.config.CELL_HEIGHT + gol.config.BORDER_WIDTH;
-      canvas.width = gol.config.UNIVERSE_WIDTH * fullCellWidth + gol.config.BORDER_WIDTH;
-      canvas.height = gol.config.UNIVERSE_HEIGHT * fullCellHeight + gol.config.BORDER_WIDTH;
+      var template, foundation, zeroElement, canvas, context, fullCellWidth, fullCellHeight, width, height;
+      fullCellWidth = config.CELL_WIDTH + config.BORDER_WIDTH;
+      fullCellHeight = config.CELL_HEIGHT + config.BORDER_WIDTH;
+      width = config.UNIVERSE_WIDTH * fullCellWidth + config.BORDER_WIDTH;
+      height = config.UNIVERSE_HEIGHT * fullCellHeight + config.BORDER_WIDTH;
+      template = '' +
+        '<table class="wrap">' +
+        '  <tr>' +
+        '    <td id="zero"></td>' +
+        '  </tr>' +
+        '</table>';
+      foundation = this.parseTemplate(template);
+      canvas = document.createElement('canvas');
       canvas.classList.add('universe');
       canvas.addEventListener('click', this.toggleCellListener);
-      this.universe  = canvas;
+      canvas.width = width;
+      canvas.height = height;
+      zeroElement = foundation.getElementById('zero');
+      zeroElement.appendChild(canvas);
+      context = canvas.getContext('2d');
+      this.universe = canvas;
       this.universeContext = context;
-      return canvas;
+      return foundation;
     },
 
     /**
@@ -126,13 +159,23 @@
      * @return {DocumentFragment} Game menu
      */
     createMenu: function () {
-      var menu = document.getElementById('menu-template').content,
-          startButton = menu.querySelector('.start-button'),
-          stopButton = menu.querySelector('.stop-button'),
-          stepButton = menu.querySelector('.step-button'),
-          clearButton = menu.querySelector('.clear-button'),
-          loadButton = menu.querySelector('.load-button'),
-          saveButton = menu.querySelector('.save-button');
+      var menu, template, startButton, stopButton, stepButton, clearButton, loadButton, saveButton, menuTemplateString;
+      template = '' +
+        '<div class="menu">' +
+        '  <button class="button start-button">START</button>' +
+        '  <button class="button stop-button">STOP</button>' +
+        '  <button class="button step-button">NEXT STEP</button>' +
+        '  <button class="button clear-button">CLEAR</button>' +
+        '  <button class="button load-button">LOAD</button>' +
+        '  <button class="button save-button">SAVE</button>' +
+        '</div>';
+      menu = this.parseTemplate(template);
+      startButton = menu.querySelector('.start-button');
+      stopButton = menu.querySelector('.stop-button');
+      stepButton = menu.querySelector('.step-button');
+      clearButton = menu.querySelector('.clear-button');
+      loadButton = menu.querySelector('.load-button');
+      saveButton = menu.querySelector('.save-button');
       startButton.addEventListener('click', this.startListener);
       stopButton.addEventListener('click', this.stopListener);
       stepButton.addEventListener('click', this.stepForwardListener);
@@ -149,8 +192,14 @@
      * @return {DocumentFragment} Block with step display
      */
     createStepDisplay: function () {
-      var stepDisplay = document.getElementById('step-display-template').content;
-      this.stepDisplayElement = stepDisplay.querySelector('.step-display span');
+      var stepDisplay, stepDisplayElement;
+      stepDisplayElement = document.createElement('template');
+      stepDisplayElement.innerHTML = '' +
+        '<div class="step-display">' +
+        '  <span>0</span>' +
+        '</div>';
+      stepDisplay = stepDisplayElement.content;
+      this.stepDisplaySpot = stepDisplay.querySelector('.step-display span');
       return stepDisplay;
     },
 
@@ -161,19 +210,41 @@
      * @return {DocumentFragment} Block with input panel
      */
     createInputPanel: function () {
-      var inputPanel = document.getElementById('input-panel-template').content,
-          minToLive = inputPanel.querySelector('.min-to-live'),
-          maxToLive = inputPanel.querySelector('.max-to-live'),
-          toBeBorn = inputPanel.querySelector('.to-be-born');
-      this.minNeighborsToLiveElement = minToLive;
-      this.maxNeighborsToLiveElement = maxToLive;
-      this.neighborsToBeBornElement = toBeBorn;
-      minToLive.addEventListener('input', this.changeLifeConditionsListener);
-      maxToLive.addEventListener('input', this.changeLifeConditionsListener);
-      toBeBorn.addEventListener('input', this.changeLifeConditionsListener);
-      minToLive.value = gol.config.MIN_NEIGHBORS_TO_LIVE;
-      maxToLive.value = gol.config.MAX_NEIGHBORS_TO_LIVE;
-      toBeBorn.value = gol.config.NEIGHBORS_TO_BE_BORN;
+      var inputPanel, template, minToLiveElement, maxToLiveElement, toBeBornElement;
+      template = '' +
+        '<div class="input-panel">' +
+        '  <div class="wrap">' +
+        '    <div class="input-block">' +
+        '      <span class="value">2</span>' +
+        '      <input class="min-to-live" type="range" min="0" max="8" name="min-to-live">' +
+        '      <span class="description">MIN neighbours to LIVE</span>' +
+        '    </div>' +
+        '    <div class="input-block">' +
+        '      <span class="value">3</span>' +
+        '      <input class="max-to-live" type="range" min="0" max="8" name="max-to-live">' +
+        '      <span class="description">MAX neighbours to LIVE</span>' +
+        '    </div>' +
+        '    <div class="input-block">' +
+        '      <span class="value">3</span>' +
+        '      <input class="to-be-born" type="range" min="0" max="8" name="to-be-born">' +
+        '      <span class="description">N neighbours to BE BORN</span>' +
+        '    </div>' +
+        '    <div class="clear"></div>' +
+        '  </div>' +
+        '</div>';
+      inputPanel = this.parseTemplate(template);
+      minToLiveElement = inputPanel.querySelector('.min-to-live');
+      maxToLiveElement = inputPanel.querySelector('.max-to-live');
+      toBeBornElement = inputPanel.querySelector('.to-be-born');
+      minToLiveElement.addEventListener('input', this.changeLifeConditionsListener);
+      maxToLiveElement.addEventListener('input', this.changeLifeConditionsListener);
+      toBeBornElement.addEventListener('input', this.changeLifeConditionsListener);
+      minToLiveElement.value = config.MIN_NEIGHBORS_TO_LIVE;
+      maxToLiveElement.value = config.MAX_NEIGHBORS_TO_LIVE;
+      toBeBornElement.value = config.NEIGHBORS_TO_BE_BORN;
+      this.minNeighborsToLiveElement = minToLiveElement;
+      this.maxNeighborsToLiveElement = maxToLiveElement;
+      this.neighborsToBeBornElement = toBeBornElement;
       return inputPanel;
     },
 
@@ -184,10 +255,11 @@
      * @param element {HTMLElement} Element which append UI to
      */
     appendTo: function (element) {
-      var universe = this.createUniverse(),
-          menu = this.createMenu(),
-          stepDisplay = this.createStepDisplay(),
-          inputPanel = this.createInputPanel();
+      var universe, menu, stepDisplay, inputPanel;
+      universe = this.createUniverse();
+      menu = this.createMenu();
+      stepDisplay = this.createStepDisplay();
+      inputPanel = this.createInputPanel();
       element.appendChild(universe);
       element.appendChild(stepDisplay);
       element.appendChild(inputPanel);
@@ -200,7 +272,7 @@
      * @property stepDisplayElement
      * @type HTMLElement
      */
-    stepDisplayElement: null,
+    stepDisplaySpot: null,
 
     /**
      * Minimum neighbors amount of cell to live
@@ -243,5 +315,5 @@
     universeContext: null
   };
 
-  gol.sandbox.add('UI', UI);
-})();
+  return UI;
+});

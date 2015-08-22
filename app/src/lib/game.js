@@ -3,38 +3,57 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
-(function () {
-  var gol = G.app('gameOfLife'),
-      fullCellWidth = gol.config.CELL_WIDTH + gol.config.BORDER_WIDTH,
-      fullCellHeight = gol.config.CELL_HEIGHT + gol.config.BORDER_WIDTH,
-      borderWidth = gol.config.BORDER_WIDTH,
-      cellWidth = gol.config.CELL_WIDTH,
-      cellHeight = gol.config.CELL_HEIGHT;
+define(function (require) {
+  var config = require('./config.js');
 
   /**
    * @class Game
    * @constructor
    */
   var Game = function () {
-    this.minNeighborsToLive = gol.config.MIN_NEIGHBORS_TO_LIVE;
-    this.maxNeighborsToLive = gol.config.MAX_NEIGHBORS_TO_LIVE;
-    this.neighborsToBeBorn = gol.config.NEIGHBORS_TO_BE_BORN;
-    this.timeInterval = gol.config.TIME_INTERVAL;
-    this.step = gol.config.STEP;
+    var Universe, UI;
+    Universe = require('./universe.js');
+    UI = require('./ui.js');
+    this.universe = new Universe();
+    this.ui = new UI(this);
+    this.minNeighborsToLive = config.MIN_NEIGHBORS_TO_LIVE;
+    this.maxNeighborsToLive = config.MAX_NEIGHBORS_TO_LIVE;
+    this.timeInterval = config.TIME_INTERVAL;
+    this.neighborsToBeBorn = config.NEIGHBORS_TO_BE_BORN;
+    this.step = config.STEP;
+    this.forEachCell = this.forEachCell.bind(this);
+    this.stepForward = this.stepForward.bind(this);
   };
-  
+
   Game.prototype = {
+    /**
+     * Initiates Game Of Life
+     *
+     * @method init
+     */
+    init: function () {
+      this.ui.appendTo(document.body);
+      this.load();
+    },
+
     /**
      * Makes some logic from callback function for each cell
      *
      * @method forEachCell
-     * @param {Universe~ForEachCellCb} callback Callback function for each cell
+     * @param {Game~ForEachCellCb} callback Callback function for each cell
+     */
+
+    /**
+     * Called for each cell
+     *
+     * @callback Game~ForEachCellCb
+     * @param {Cell} cell Cell in universe
      */
     forEachCell: function (callback) {
-      var x, y, cell,
-          width = gol.module('universe').width,
-          height = gol.module('universe').height,
-          space = gol.module('universe').space;
+      var x, y, cell, width, height, space;
+      width = this.universe.width;
+      height = this.universe.height;
+      space = this.universe.space;
       for (x = 0; x < width; x++) {
         for (y = 0; y < height; y++) {
           cell = space[x][y];
@@ -48,8 +67,9 @@
      * @return {Array} Array of data with alive cells coordinates and step count
      */
     toLocaleString: function () {
-      var result = {},
-          plainSpace = [];
+      var result, plainSpace;
+      result = {};
+      plainSpace = [];
       this.forEachCell(function (cell) {
         if (cell.isAlive) {
           plainSpace.push({
@@ -59,24 +79,9 @@
         }
       });
       result.space = plainSpace;
-      result.step = gol.module('game').step;
-      return JSON.stringify(result);
-    },
-
-    /**
-     * Initiates Game Of Life
-     *
-     * @method init
-     */
-    init: function () {
-      var savedGame = localStorage.getItem('savedGame');
-      gol.module('ui').appendTo(document.getElementById('zero'));
-      if (savedGame) {
-        this.load();
-      } else {
-        window.localStorage.setItem('defaultGame', gol.sandbox.get('defaultGame'));
-        this.load('defaultGame');
-      }
+      result.step = this.step;
+      result = JSON.stringify(result);
+      return result;
     },
 
     /**
@@ -86,7 +91,8 @@
      */
     start: function () {
       if (!this.intervalID) {
-        this.intervalID = window.setInterval(this.stepForward.bind(this), this.timeInterval);
+        this.intervalID = setInterval(this.stepForward, this.timeInterval);
+        this.inAnimation = true;
       }
     },
 
@@ -96,8 +102,11 @@
      * @method stop
      */
     stop: function () {
-      window.clearInterval(this.intervalID);
-      this.intervalID = null;
+      if (this.intervalID ) {
+        clearInterval(this.intervalID);
+        this.intervalID = null;
+        this.inAnimation = false;
+      }
     },
 
     /**
@@ -124,8 +133,7 @@
      * @method save
      */
     save: function (name) {
-      name = name || 'savedGame';
-      localStorage.setItem(name, gol.module('universe').toLocaleString());
+      localStorage.setItem(name, this.toLocaleString());
     },
 
     /**
@@ -135,15 +143,15 @@
      * @param name {String} Name of game to load
      */
     load: function (name) {
-      var data, loadedGame;
-      name = name || 'savedGame';
-      data = window.localStorage.getItem(name);
+      var data, loadedGame, defaultGame;
+      defaultGame = require('./default_game.js');
+      data = name ? localStorage.getItem(name) : defaultGame;
       if (data) {
         loadedGame = JSON.parse(data);
         this.killAllCells();
         this.setStepCounter(loadedGame.step);
         loadedGame.space.forEach(function (cell) {
-          gol.module('universe').space[cell.x][cell.y].revive();
+          this.universe.space[cell.x][cell.y].revive();
         }.bind(this));
         this.render();
       }
@@ -157,7 +165,7 @@
      * @param y {Number} Y coordinate of cell
      */
     toggleCell: function (x, y) {
-      var cell = gol.module('universe').space[x][y];
+      var cell = this.universe.space[x][y];
       if (cell.isAlive) {
         cell.kill();
       } else {
@@ -189,9 +197,9 @@
      * @param value {Number} Value of changed condition
      */
     changeLifeConditions: function (key, value) {
-      gol.module('ui')[key + 'Element'].value = value;
-      gol.module('ui')[key + 'Element'].parentElement.querySelector('span').innerHTML = value;
-      this[key] = value;
+      this.ui[key + 'Element'].value = value;
+      this.ui[key + 'Element'].parentElement.querySelector('span').innerHTML = value;
+      this.conditions[key] = value;
       this.calculateNextStep();
     },
 
@@ -204,14 +212,14 @@
       var aliveNeighbors, willDie, willBeBorn;
       this.forEachCell(function (cell) {
         aliveNeighbors = this.calculateAliveNeighborsOf(cell);
-        willDie = aliveNeighbors < this.minNeighborsToLive || aliveNeighbors > this.maxNeighborsToLive;
-        willBeBorn = aliveNeighbors === this.neighborsToBeBorn;
+        willDie = aliveNeighbors < this.conditions.minNeighborsToLive || aliveNeighbors > this.conditions.maxNeighborsToLive;
+        willBeBorn = aliveNeighbors === this.conditions.neighborsToBeBorn;
         if (cell.isAlive) {
           cell.willLiveNextStep = willDie ? false : true;
         } else {
           cell.willLiveNextStep = willBeBorn ? true : false;
         }
-      }.bind(this));
+      });
     },
 
     /**
@@ -220,15 +228,15 @@
      * @return {Number} count of alive neighbors
      */
     calculateAliveNeighborsOf: function (cell) {
-      var space = gol.module('universe').space;
+      var space = this.universe.space;
       return cell.neighborsCoordinates
-          .map(function (coordinates) {
-            return space[coordinates.x][coordinates.y];
-          })
-          .filter(function(cell) {
-            return cell.isAlive;
-          })
-          .length;
+        .map(function (coordinates) {
+          return space[coordinates.x][coordinates.y];
+        })
+        .filter(function (cell) {
+          return cell.isAlive;
+        })
+        .length;
     },
 
     /**
@@ -239,7 +247,9 @@
      */
     setStepCounter: function (value) {
       this.step = value;
-      gol.module('ui').stepDisplayElement.innerHTML = value;
+      if (this.ui.stepDisplaySpot) {
+        this.ui.stepDisplaySpot.innerHTML = value;
+      }
     },
 
     /**
@@ -248,42 +258,55 @@
      * @method render
      */
     render: function () {
-      var x, y,
-          context = gol.module('ui').universeContext;
+      var x, y, fullCellWidth, fullCellHeight, borderWidth, cellWidth, cellHeight, context;
+      fullCellWidth = config.CELL_WIDTH + config.BORDER_WIDTH;
+      fullCellHeight = config.CELL_HEIGHT + config.BORDER_WIDTH;
+      borderWidth = config.BORDER_WIDTH;
+      cellWidth = config.CELL_WIDTH;
+      cellHeight = config.CELL_HEIGHT;
+      context = this.ui.universeContext;
       this.forEachCell(function (cell) {
         x = cell.x * fullCellWidth + borderWidth;
         y = cell.y * fullCellHeight + borderWidth;
         cell.calculateColor();
-        context.fillStyle = cell.color;
-        context.fillRect(x, y, cellWidth, cellHeight);
+        if (context) {
+          context.fillStyle = cell.color;
+          context.fillRect(x, y, cellWidth, cellHeight);
+        }
       });
     },
 
     /**
-     * @property minNeighborsToLive
-     * @type Number
-     * @default 2
+     * @property conditions
+     * @type Object
      */
-    minNeighborsToLive: 2,
+    conditions: {
+      /**
+       * @property minNeighborsToLive
+       * @type Number
+       * @default 2
+       */
+      minNeighborsToLive: 2,
 
-    /**
-     * @property mmaxNeighborsToLive
-     * @type Number
-     * @default 3
-     */
-    maxNeighborsToLive: 3,
+      /**
+       * @property maxNeighborsToLive
+       * @type Number
+       * @default 3
+       */
+      maxNeighborsToLive: 3,
 
-    /**
-     * @property neighborsToBeBorn
-     * @type Number
-     * @default 3
-     */
-    neighborsToBeBorn: 3,
+      /**
+       * @property neighborsToBeBorn
+       * @type Number
+       * @default 3
+       */
+      neighborsToBeBorn: 3,
+    },
+
 
     /**
      * @property timeInterval
      * @type Number
-     * @default 40
      */
     timeInterval: 0,
 
@@ -297,8 +320,14 @@
      * @property step
      * @type Number
      */
-    step: 0
+    step: 0,
+
+    /**
+     * @property inAnimation
+     * @type Boolean
+     */
+    inAnimation: false
   };
 
-  gol.sandbox.add('Game', Game);
-})();
+  return Game;
+});

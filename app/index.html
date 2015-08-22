@@ -6,58 +6,8 @@
   <link rel="icon" href="http://devlysh.com/img/favicon.ico">
   <link rel="stylesheet" href="./css/reset.css">
   <link rel="stylesheet" href="./css/index.css">
-  <script src="./src/lib/vendor/g.js"></script>
-  <script src="./src/lib/app.js"></script>
-  <script src="./src/lib/config.js"></script>
-  <script src="./src/lib/game.js"></script>
-  <script src="./src/lib/ui.js"></script>
-  <script src="./src/lib/cell.js"></script>
-  <script src="./src/lib/universe.js"></script>
-  <script src="./src/lib/default_game.js"></script>
+  <script data-main="./src/main" src="./src/lib/vendor/require.js"></script>
 </head>
 <body>
-  <template id="menu-template">
-    <div class="menu">
-      <button class="button start-button">START</button>
-      <button class="button stop-button">STOP</button>
-      <button class="button step-button">NEXT STEP</button>
-      <button class="button clear-button">CLEAR</button>
-      <button class="button load-button">LOAD</button>
-      <button class="button save-button">SAVE</button>
-    </div>
-  </template>
-  <template id="step-display-template">
-    <div class="step-display">
-      <span>0</span>
-    </div>
-  </template>
-  <template id="input-panel-template">
-    <div class="input-panel">
-      <div class="wrap">
-        <div class="input-block">
-          <span class="value">2</span>
-          <input class="min-to-live" type="range" min="0" max="8" name="min-to-live">
-          <span class="description">MIN neighbours to LIVE</span>
-        </div>
-        <div class="input-block">
-          <span class="value">3</span>
-          <input class="max-to-live" type="range" min="0" max="8" name="max-to-live">
-          <span class="description">MAX neighbours to LIVE</span>
-        </div>
-        <div class="input-block">
-          <span class="value">3</span>
-          <input class="to-be-born" type="range" min="0" max="8" name="to-be-born">
-          <span class="description">N neighbours to BE BORN</span>
-        </div>
-        <div class="clear"></div>
-      </div>
-    </div>
-  </template>
-  <table class="wrap">
-    <tr>
-      <td id="zero"></td>
-    </tr>
-  </table>
-  <script src="./src/index.js"></script>
 </body>
 </html>
