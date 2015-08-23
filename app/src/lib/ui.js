@@ -5,106 +5,119 @@
 
 //TODO: Implement changing life conditions by keyboard
 define(function (require) {
-  var config = require('./config.js');
+  var game, config;
+  config = require('./config.js');
+
+  /**
+   * Listener for 'Start' button
+   *
+   * @function
+   */
+  function startListener () {
+    game.start.call(game);
+    this.classList.remove('start-button');
+    this.classList.add('stop-button');
+    this.innerHTML = 'STOP';
+    this.addEventListener('click', stopListener);
+    this.removeEventListener('click', startListener);
+  }
+
+  /**
+   * Listener for 'Stop' button
+   *
+   * @function
+   */
+  function stopListener () {
+    game.stop.call(game);
+    this.classList.remove('stop-button');
+    this.classList.add('start-button');
+    this.innerHTML = 'START';
+    this.addEventListener('click', startListener);
+    this.removeEventListener('click', stopListener);
+  }
+
+  /**
+   * Listener for 'Step forward' button
+   *
+   * @function
+   */
+  function stepForwardListener () {
+    game.stepForward.call(game);
+  }
+
+  /**
+   * Listener for 'Clear' button
+   *
+   * @function
+   */
+  function clearListener () {
+    game.killAllCells.call(game);
+  }
+
+  /**
+   * Listener for 'Save' button
+   *
+   * @function
+   */
+  function saveListener () {
+    game.save.call(game, 'savedGame');
+  }
+
+  /**
+   * Listener for 'Load' button
+   *
+   * @function
+   */
+  function loadListener () {
+    game.load.call(game, 'savedGame');
+  }
+
+  /**
+   * Listener for inputs which changes life conditions
+   *
+   * @function
+   * @param event {Event}
+   */
+  function changeLifeConditionsListener (event) {
+    var k, v, target, value;
+    target = event.target;
+    value = target.value;
+    if (target.name === 'min-to-live') {
+      k = 'minNeighborsToLive';
+      v = Number(value);
+    }
+    if (target.name === 'max-to-live') {
+      k = 'maxNeighborsToLive';
+      v = Number(value);
+    }
+    if (target.name === 'to-be-born') {
+      k = 'neighborsToBeBorn';
+      v = Number(value);
+    }
+    game.changeLifeConditions.call(game, k, v);
+  }
+
+  /**
+   * Listener for inputs which changes life conditions
+   *
+   * @function
+   * @param event {Event}
+   */
+  function toggleCellListener (event) {
+    var fullCellWidth, fullCellHeight, x, y;
+    fullCellWidth = config.CELL_WIDTH + config.BORDER_WIDTH;
+    fullCellHeight = config.CELL_HEIGHT + config.BORDER_WIDTH;
+    x = Math.floor((event.layerX - config.BORDER_WIDTH) / fullCellWidth);
+    y = Math.floor((event.layerY - config.BORDER_WIDTH) / fullCellHeight);
+    game.toggleCell.call(game, x, y);
+  }
 
   /**
    * @class UI
    * @constructor
    */
-  var UI = function (game) {
-    /**
-     * Listener for 'Start' button
-     *
-     * @function
-     */
-    this.startListener = function () {
-      game.start.call(game);
-    };
-
-    /**
-     * Listener for 'Stop' button
-     *
-     * @function
-     */
-    this.stopListener = function () {
-      game.stop.call(game);
-    };
-
-    /**
-     * Listener for 'Step forward' button
-     *
-     * @function
-     */
-    this.stepForwardListener = function () {
-      game.stepForward.call(game);
-    };
-
-    /**
-     * Listener for 'Clear' button
-     *
-     * @function
-     */
-    this.clearListener = function () {
-      game.killAllCells.call(game);
-    };
-
-    /**
-     * Listener for 'Save' button
-     *
-     * @function
-     */
-    this.saveListener = function () {
-      game.save.call(game, 'savedGame');
-    };
-
-    /**
-     * Listener for 'Load' button
-     *
-     * @function
-     */
-    this.loadListener = function () {
-      game.load.call(game, 'savedGame');
-    };
-
-    /**
-     * Listener for inputs which changes life conditions
-     *
-     * @function
-     * @param event {Event}
-     */
-    this.changeLifeConditionsListener = function (event) {
-      var k, v, target, value;
-      target = event.target;
-      value = target.value;
-      if (target.name === 'min-to-live') {
-        k = 'minNeighborsToLive';
-        v = Number(value);
-      }
-      if (target.name === 'max-to-live') {
-        k = 'maxNeighborsToLive';
-        v = Number(value);
-      }
-      if (target.name === 'to-be-born') {
-        k = 'neighborsToBeBorn';
-        v = Number(value);
-      }
-      game.changeLifeConditions.call(game, k, v);
-    };
-
-    /**
-     * Listener for inputs which changes life conditions
-     *
-     * @function
-     * @param event {Event}
-     */
-    this.toggleCellListener = function (event) {
-      var fullCellWidth, fullCellHeight, x, y;
-      fullCellWidth = config.CELL_WIDTH + config.BORDER_WIDTH;
-      fullCellHeight = config.CELL_HEIGHT + config.BORDER_WIDTH;
-      x = Math.floor((event.layerX - config.BORDER_WIDTH) / fullCellWidth);
-      y = Math.floor((event.layerY - config.BORDER_WIDTH) / fullCellHeight);
-      game.toggleCell.call(game, x, y);
-    };
+  var UI = function (g) {
+    game = g;
   };
 
   UI.prototype = {
@@ -123,13 +136,13 @@ define(function (require) {
     },
 
     /**
-     * Returns new universe, game's field
+     * Returns new canvas, game's field
      *
      * @method createUniverse
      * @return {HTMLCanvasElement}
      */
     createUniverse: function () {
-      var template, foundation, zeroElement, canvas, context, fullCellWidth, fullCellHeight, width, height;
+      var template, foundation, zeroElement, canvas, canvasContext, fullCellWidth, fullCellHeight, width, height;
       fullCellWidth = config.CELL_WIDTH + config.BORDER_WIDTH;
       fullCellHeight = config.CELL_HEIGHT + config.BORDER_WIDTH;
       width = config.UNIVERSE_WIDTH * fullCellWidth + config.BORDER_WIDTH;
@@ -143,14 +156,14 @@ define(function (require) {
       foundation = this.parseTemplate(template);
       canvas = document.createElement('canvas');
       canvas.classList.add('universe');
-      canvas.addEventListener('click', this.toggleCellListener);
+      canvas.addEventListener('click', toggleCellListener);
       canvas.width = width;
       canvas.height = height;
       zeroElement = foundation.getElementById('zero');
       zeroElement.appendChild(canvas);
-      context = canvas.getContext('2d');
-      this.universe = canvas;
-      this.universeContext = context;
+      canvasContext = canvas.getContext('2d');
+      this.canvas = canvas;
+      this.canvasContext = canvasContext;
       return foundation;
     },
 
@@ -161,12 +174,10 @@ define(function (require) {
      * @return {DocumentFragment} Game menu
      */
     createButtonsMenu: function () {
-      //TODO: Merge 'start' and 'stop' buttons
       var menu, template, startButton, stopButton, stepButton, clearButton, loadButton, saveButton;
       template = '' +
         '<div class="menu">' +
         '  <button class="button start-button">START</button>' +
-        '  <button class="button stop-button">STOP</button>' +
         '  <button class="button step-button">NEXT STEP</button>' +
         '  <button class="button clear-button">CLEAR</button>' +
         '  <button class="button load-button">LOAD</button>' +
@@ -174,17 +185,15 @@ define(function (require) {
         '</div>';
       menu = this.parseTemplate(template);
       startButton = menu.querySelector('.start-button');
-      stopButton = menu.querySelector('.stop-button');
       stepButton = menu.querySelector('.step-button');
       clearButton = menu.querySelector('.clear-button');
       loadButton = menu.querySelector('.load-button');
       saveButton = menu.querySelector('.save-button');
-      startButton.addEventListener('click', this.startListener);
-      stopButton.addEventListener('click', this.stopListener);
-      stepButton.addEventListener('click', this.stepForwardListener);
-      clearButton.addEventListener('click', this.clearListener);
-      loadButton.addEventListener('click', this.loadListener);
-      saveButton.addEventListener('click', this.saveListener);
+      startButton.addEventListener('click', startListener);
+      stepButton.addEventListener('click', stepForwardListener);
+      clearButton.addEventListener('click', clearListener);
+      loadButton.addEventListener('click', loadListener);
+      saveButton.addEventListener('click', saveListener);
       return menu;
     },
 
@@ -240,9 +249,9 @@ define(function (require) {
       minToLiveElement = inputPanel.querySelector('.min-to-live');
       maxToLiveElement = inputPanel.querySelector('.max-to-live');
       toBeBornElement = inputPanel.querySelector('.to-be-born');
-      minToLiveElement.addEventListener('input', this.changeLifeConditionsListener);
-      maxToLiveElement.addEventListener('input', this.changeLifeConditionsListener);
-      toBeBornElement.addEventListener('input', this.changeLifeConditionsListener);
+      minToLiveElement.addEventListener('input', changeLifeConditionsListener);
+      maxToLiveElement.addEventListener('input', changeLifeConditionsListener);
+      toBeBornElement.addEventListener('input', changeLifeConditionsListener);
       minToLiveElement.value = config.MIN_NEIGHBORS_TO_LIVE;
       maxToLiveElement.value = config.MAX_NEIGHBORS_TO_LIVE;
       toBeBornElement.value = config.NEIGHBORS_TO_BE_BORN;
@@ -305,18 +314,18 @@ define(function (require) {
     /**
      * Link to canvas element
      *
-     * @property universe
+     * @property canvas
      * @type {HTMLCanvasElement}
      */
-    universe: null,
+    canvas: null,
 
     /**
      * Context of canvas element
      *
-     * @property universeContext
+     * @property canvasContext
      * @type CanvasRenderingContext2D
      */
-    universeContext: null
+    canvasContext: null
   };
 
   return UI;
