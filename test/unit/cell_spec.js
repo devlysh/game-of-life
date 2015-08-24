@@ -9,7 +9,7 @@ define(['../../app/src/lib/cell.js'], function (Cell) {
       cell = new Cell(x, y);
     });
 
-    it('should hame "x", "y", "neightborCoordinates" methods', function () {
+    it('should have "x", "y", "neightborCoordinates" methods', function () {
       expect(cell.x).toBeDefined();
       expect(cell.y).toBeDefined();
       expect(cell.x).toBe(x);
@@ -35,14 +35,28 @@ define(['../../app/src/lib/cell.js'], function (Cell) {
     });
 
     describe('.calculateColor method', function () {
-      it('calculate color of cell', function () {
-        //TODO: Implement this test
+      it('calculates color of cell', function () {
+        define(['../../app/src/lib/config.js'], function (config) {
+          cell.revive();
+          expect(cell.color).toBe(config.ALIVE_COLOR);
+          cell.kill();
+          expect(cell.color).toBe(config.DEAD_COLOR);
+        });
       });
     });
 
     describe('._detectNeighborsCoordinates method', function () {
       it('should detect neighbors coordinates of current cell', function () {
-        //TODO: Implement this test
+        var result;
+        result = cell._detectNeighborsCoordinates();
+        expect(result).toContain({x: 4, y: 5});
+        expect(result).toContain({x: 5, y: 5});
+        expect(result).toContain({x: 6, y: 5});
+        expect(result).toContain({x: 4, y: 6});
+        expect(result).toContain({x: 6, y: 6});
+        expect(result).toContain({x: 4, y: 7});
+        expect(result).toContain({x: 5, y: 7});
+        expect(result).toContain({x: 6, y: 7});
       });
     });
   });
