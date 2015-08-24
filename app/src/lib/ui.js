@@ -3,37 +3,144 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
-//TODO: Implement changing life conditions by keyboard
 define(function (require) {
-  var game, config;
-  config = require('./config.js');
+  var game, config = require('./config.js');
 
   /**
-   * Listener for 'Start' button
+   * Listener for keyboard
    *
    * @function
    */
-  function startListener () {
-    game.start.call(game);
-    this.classList.remove('start-button');
-    this.classList.add('stop-button');
-    this.innerHTML = 'STOP';
-    this.addEventListener('click', stopListener);
-    this.removeEventListener('click', startListener);
+  function keyboardListener(event) {
+    switch (event.keyCode) {
+      case config.keys.space:
+        if (event.shiftKey) {
+          stopGame();
+          stepForwardListener();
+        } else {
+          toggleGameListener();
+        }
+        break;
+      case config.keys.q:
+        game.changeLifeConditions('minNeighborsToLive', 0);
+        break;
+      case config.keys.w:
+        game.changeLifeConditions('minNeighborsToLive', 1);
+        break;
+      case config.keys.e:
+        game.changeLifeConditions('minNeighborsToLive', 2);
+        break;
+      case config.keys.r:
+        game.changeLifeConditions('minNeighborsToLive', 3);
+        break;
+      case config.keys.t:
+        game.changeLifeConditions('minNeighborsToLive', 4);
+        break;
+      case config.keys.y:
+        game.changeLifeConditions('minNeighborsToLive', 5);
+        break;
+      case config.keys.u:
+        game.changeLifeConditions('minNeighborsToLive', 6);
+        break;
+      case config.keys.i:
+        game.changeLifeConditions('minNeighborsToLive', 7);
+        break;
+      case config.keys.o:
+        game.changeLifeConditions('minNeighborsToLive', 8);
+        break;
+      case config.keys.a:
+        game.changeLifeConditions('maxNeighborsToLive', 0);
+        break;
+      case config.keys.s:
+        game.changeLifeConditions('maxNeighborsToLive', 1);
+        break;
+      case config.keys.d:
+        game.changeLifeConditions('maxNeighborsToLive', 2);
+        break;
+      case config.keys.f:
+        game.changeLifeConditions('maxNeighborsToLive', 3);
+        break;
+      case config.keys.g:
+        game.changeLifeConditions('maxNeighborsToLive', 4);
+        break;
+      case config.keys.h:
+        game.changeLifeConditions('maxNeighborsToLive', 5);
+        break;
+      case config.keys.j:
+        game.changeLifeConditions('maxNeighborsToLive', 6);
+        break;
+      case config.keys.k:
+        game.changeLifeConditions('maxNeighborsToLive', 7);
+        break;
+      case config.keys.l:
+        game.changeLifeConditions('maxNeighborsToLive', 8);
+        break;
+      case config.keys.z:
+        game.changeLifeConditions('neighborsToBeBorn', 0);
+        break;
+      case config.keys.x:
+        game.changeLifeConditions('neighborsToBeBorn', 1);
+        break;
+      case config.keys.c:
+        game.changeLifeConditions('neighborsToBeBorn', 2);
+        break;
+      case config.keys.v:
+        game.changeLifeConditions('neighborsToBeBorn', 3);
+        break;
+      case config.keys.b:
+        game.changeLifeConditions('neighborsToBeBorn', 4);
+        break;
+      case config.keys.n:
+        game.changeLifeConditions('neighborsToBeBorn', 5);
+        break;
+      case config.keys.m:
+        game.changeLifeConditions('neighborsToBeBorn', 6);
+        break;
+      case config.keys.comma:
+        game.changeLifeConditions('neighborsToBeBorn', 7);
+        break;
+      case config.keys.period:
+        game.changeLifeConditions('neighborsToBeBorn', 8);
+        break;
+    }
   }
 
   /**
-   * Listener for 'Stop' button
+   * Starts game
    *
    * @function
    */
-  function stopListener () {
-    game.stop.call(game);
-    this.classList.remove('stop-button');
-    this.classList.add('start-button');
-    this.innerHTML = 'START';
-    this.addEventListener('click', startListener);
-    this.removeEventListener('click', stopListener);
+  function startGame() {
+    game.start();
+    game.ui.gameButtonElement.classList.remove('start-button');
+    game.ui.gameButtonElement.classList.add('stop-button');
+    game.ui.gameButtonElement.innerHTML = 'STOP';
+  }
+
+  /**
+   * Stops game
+   *
+   * @function
+   */
+  function stopGame() {
+    game.stop();
+    game.ui.gameButtonElement.classList.remove('stop-button');
+    game.ui.gameButtonElement.classList.add('start-button');
+    game.ui.gameButtonElement.innerHTML = 'START';
+  }
+
+  /**
+   * Listener for 'Start' and 'Stop' button
+   *
+   * @function
+   */
+  function toggleGameListener() {
+    if (game.inAnimation) {
+      stopGame();
+    } else {
+      startGame();
+    }
+    this.blur();
   }
 
   /**
@@ -41,8 +148,9 @@ define(function (require) {
    *
    * @function
    */
-  function stepForwardListener () {
-    game.stepForward.call(game);
+  function stepForwardListener() {
+    game.stepForward();
+    this.blur();
   }
 
   /**
@@ -50,8 +158,9 @@ define(function (require) {
    *
    * @function
    */
-  function clearListener () {
-    game.killAllCells.call(game);
+  function clearListener() {
+    game.killAllCells();
+    this.blur();
   }
 
   /**
@@ -59,8 +168,9 @@ define(function (require) {
    *
    * @function
    */
-  function saveListener () {
+  function saveListener() {
     game.save.call(game, 'savedGame');
+    this.blur();
   }
 
   /**
@@ -68,8 +178,9 @@ define(function (require) {
    *
    * @function
    */
-  function loadListener () {
+  function loadListener() {
     game.load.call(game, 'savedGame');
+    this.blur();
   }
 
   /**
@@ -78,21 +189,23 @@ define(function (require) {
    * @function
    * @param event {Event}
    */
-  function changeLifeConditionsListener (event) {
+  function changeLifeConditionsListener(event) {
     var k, v, target, value;
     target = event.target;
     value = target.value;
-    if (target.name === 'min-to-live') {
-      k = 'minNeighborsToLive';
-      v = Number(value);
-    }
-    if (target.name === 'max-to-live') {
-      k = 'maxNeighborsToLive';
-      v = Number(value);
-    }
-    if (target.name === 'to-be-born') {
-      k = 'neighborsToBeBorn';
-      v = Number(value);
+    switch (target.name ) {
+      case 'min-to-live':
+        k = 'minNeighborsToLive';
+        v = Number(value);
+        break;
+      case 'max-to-live':
+        k = 'maxNeighborsToLive';
+        v = Number(value);
+        break;
+      case 'to-be-born':
+        k = 'neighborsToBeBorn';
+        v = Number(value);
+        break;
     }
     game.changeLifeConditions.call(game, k, v);
   }
@@ -103,7 +216,7 @@ define(function (require) {
    * @function
    * @param event {Event}
    */
-  function toggleCellListener (event) {
+  function toggleCellListener(event) {
     var fullCellWidth, fullCellHeight, x, y;
     fullCellWidth = config.CELL_WIDTH + config.BORDER_WIDTH;
     fullCellHeight = config.CELL_HEIGHT + config.BORDER_WIDTH;
@@ -174,26 +287,28 @@ define(function (require) {
      * @return {DocumentFragment} Game menu
      */
     createButtonsMenu: function () {
-      var menu, template, startButton, stopButton, stepButton, clearButton, loadButton, saveButton;
+      var menu, template, gameButton, stepButton, clearButton, loadButton, saveButton;
       template = '' +
         '<div class="menu">' +
-        '  <button class="button start-button">START</button>' +
+        '  <button class="button start-button" data-game-progress="idle">START</button>' +
         '  <button class="button step-button">NEXT STEP</button>' +
         '  <button class="button clear-button">CLEAR</button>' +
         '  <button class="button load-button">LOAD</button>' +
         '  <button class="button save-button">SAVE</button>' +
         '</div>';
       menu = this.parseTemplate(template);
-      startButton = menu.querySelector('.start-button');
+      gameButton = menu.querySelector('.start-button');
       stepButton = menu.querySelector('.step-button');
       clearButton = menu.querySelector('.clear-button');
       loadButton = menu.querySelector('.load-button');
       saveButton = menu.querySelector('.save-button');
-      startButton.addEventListener('click', startListener);
+      gameButton.addEventListener('click', toggleGameListener);
       stepButton.addEventListener('click', stepForwardListener);
       clearButton.addEventListener('click', clearListener);
       loadButton.addEventListener('click', loadListener);
       saveButton.addEventListener('click', saveListener);
+      document.body.addEventListener('keypress', keyboardListener);
+      this.gameButtonElement = gameButton;
       return menu;
     },
 
@@ -310,6 +425,14 @@ define(function (require) {
      * @type HTMLElement
      */
     neighborsToBeBornElement: null,
+
+    /**
+     * Button which starts and stops game
+     *
+     * @property gameButtonElement
+     * @type HTMLElement
+     */
+    gameButtonElement: null,
 
     /**
      * Link to canvas element

@@ -14,8 +14,8 @@ define(function (require) {
     var Universe, UI;
     Universe = require('./universe.js');
     UI = require('./ui.js');
-    this.universe = new Universe();
     this.ui = new UI(this);
+    this.universe = new Universe();
     this.minNeighborsToLive = config.MIN_NEIGHBORS_TO_LIVE;
     this.maxNeighborsToLive = config.MAX_NEIGHBORS_TO_LIVE;
     this.timeInterval = config.TIME_INTERVAL;
@@ -195,13 +195,13 @@ define(function (require) {
      * Changes life conditions
      *
      * @method changeLifeConditions
-     * @param key {String} Condition to change
+     * @param condition {String} Condition to change
      * @param value {Number} Value of changed condition
      */
-    changeLifeConditions: function (key, value) {
-      this.ui[key + 'Element'].value = value;
-      this.ui[key + 'Element'].parentElement.querySelector('span').innerHTML = value;
-      this.conditions[key] = value;
+    changeLifeConditions: function (condition, value) {
+      this.ui[condition + 'Element'].value = value;
+      this.ui[condition + 'Element'].parentElement.querySelector('span').innerHTML = value;
+      this.conditions[condition] = value;
       this.calculateNextStep();
     },
 
