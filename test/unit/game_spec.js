@@ -8,25 +8,35 @@ define(['../../app/src/lib/game.js'], function (Game) {
       game.init();
     });
 
+    describe('.init method', function () {
+      it('initiates game', function () {
+        spyOn(game.ui, 'appendTo');
+        spyOn(game, 'load');
+        game.init();
+        expect(game.ui.appendTo).toHaveBeenCalledWith(jasmine.any(HTMLElement));
+        expect(game.load).toHaveBeenCalled();
+      });
+    });
+
     describe('.forEachCell method', function () {
-      it('makes logic from callback function for each cell in canvas', function () {
+      it('makes logic from callback function for each cell in space', function () {
         var x, y, cell, width, height, space, test, worksFine;
         width = game.universe.width;
         height = game.universe.height;
         space = game.universe.space;
         test = 'test';
         worksFine = true;
+        game.forEachCell(function (cell) {
+          cell[test] = test;
+        });
         for (x = 0; x < width; x++) {
           for (y = 0; y < height; y++) {
             cell = space[x][y];
-            cell[test] = test;
+            if (!cell[test] || cell[test] !== test) {
+              worksFine = false;
+            }
           }
         }
-        game.forEachCell(function (cell) {
-          if (!cell[test] === test) {
-            worksFine = false;
-          }
-        });
         expect(worksFine).toBeTruthy();
       })
     });
@@ -49,7 +59,7 @@ define(['../../app/src/lib/game.js'], function (Game) {
     });
 
     describe('.toLocaleString method', function () {
-      it('converts canvas to plain object with live cells coordinates', function () {
+      it('converts canvas to plain object with coordinates of alive cells', function () {
         var string, loadedGame, x, y, step;
         x = 3;
         y = 4;
@@ -65,12 +75,6 @@ define(['../../app/src/lib/game.js'], function (Game) {
         expect(loadedGame.space[0].x).toBe(x);
         expect(loadedGame.space[0].y).toBe(y);
         expect(loadedGame.step).toBe(step);
-      });
-    });
-
-    describe('.init method', function () {
-      it('initiates game', function () {
-        expect(game.init).toBeDefined();
       });
     });
 
@@ -176,15 +180,21 @@ define(['../../app/src/lib/game.js'], function (Game) {
 
     describe('.calculateAliveNeighborsOf method', function () {
       it('calculates alive neighbors of any cell', function () {
-        var cell, aliveNeighbors;
-        cell = game.universe.space[5][5];
+        var cell1, cell2;
+        cell1 = game.universe.space[5][5];
+        cell2 = game.universe.space[15][5];
         game.killAllCells();
         game.universe.space[4][5].revive();
         game.universe.space[4][4].revive();
         game.universe.space[5][4].revive();
         game.universe.space[5][6].revive();
-        aliveNeighbors = game.calculateAliveNeighborsOf(cell);
-        expect(aliveNeighbors).toBe(4);
+        game.universe.space[14][5].revive();
+        game.universe.space[14][4].revive();
+        game.universe.space[15][4].revive();
+        game.universe.space[15][6].revive();
+        game.universe.space[16][5].revive();
+        expect(game.calculateAliveNeighborsOf(cell1)).toBe(4);
+        expect(game.calculateAliveNeighborsOf(cell2)).toBe(5);
       });
     });
 

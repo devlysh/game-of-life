@@ -91,7 +91,7 @@ define(function (require) {
      * @method start
      */
     start: function () {
-      if (!this.intervalID) {
+      if (!this.inAnimation) {
         this.intervalID = setInterval(this.stepForward, this.timeInterval);
         this.inAnimation = true;
       }
@@ -103,7 +103,7 @@ define(function (require) {
      * @method stop
      */
     stop: function () {
-      if (this.intervalID ) {
+      if (this.inAnimation) {
         clearInterval(this.intervalID);
         this.intervalID = null;
         this.inAnimation = false;
@@ -225,7 +225,7 @@ define(function (require) {
     },
 
     /**
-     * @method calculateAliveNeighbors
+     * @method calculateAliveNeighborsOf
      * @param cell {Object} Cell around witch alive neighbors will be found
      * @return {Number} count of alive neighbors
      */
