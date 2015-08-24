@@ -49,7 +49,7 @@ define(function (require) {
      */
     calculateColor: function () {
       //TODO: Implement colorful game
-      this.color = this.isAlive ? 'black' : 'white';
+      this.color = this.isAlive ? config.ALIVE_COLOR : config.DEAD_COLOR;
     },
 
     /**
