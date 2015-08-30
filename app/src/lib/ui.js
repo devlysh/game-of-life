@@ -193,7 +193,7 @@ define(function (require) {
     var k, v, target, value;
     target = event.target;
     value = target.value;
-    switch (target.name ) {
+    switch (target.name) {
       case 'min-to-live':
         k = 'minNeighborsToLive';
         v = Number(value);
@@ -307,9 +307,17 @@ define(function (require) {
       clearButton.addEventListener('click', clearListener);
       loadButton.addEventListener('click', loadListener);
       saveButton.addEventListener('click', saveListener);
-      document.body.addEventListener('keypress', keyboardListener);
       this.gameButtonElement = gameButton;
       return menu;
+    },
+
+    /**
+     * Binds keys
+     *
+     * @method bindKeys
+     */
+    bindKeys: function () {
+      document.body.addEventListener('keypress', keyboardListener);
     },
 
     /**
@@ -392,6 +400,7 @@ define(function (require) {
       element.appendChild(stepDisplay);
       element.appendChild(inputPanel);
       element.appendChild(menu);
+      this.bindKeys();
     },
 
     /**
