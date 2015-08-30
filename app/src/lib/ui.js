@@ -290,7 +290,7 @@ define(function (require) {
       var menu, template, gameButton, stepButton, clearButton, loadButton, saveButton;
       template = '' +
         '<div class="menu">' +
-        '  <button class="button start-button" data-game-progress="idle">START</button>' +
+        '  <button class="button start-button">START</button>' +
         '  <button class="button step-button">NEXT STEP</button>' +
         '  <button class="button clear-button">CLEAR</button>' +
         '  <button class="button load-button">LOAD</button>' +
