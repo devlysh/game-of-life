@@ -64,10 +64,10 @@ define(function (require) {
     },
 
     /**
-     * @method toLocaleString
+     * @method toString
      * @return {Array} Array of data with alive cells coordinates and step count
      */
-    toLocaleString: function () {
+    toString: function () {
       var result, plainSpace;
       result = {};
       plainSpace = [];
@@ -134,7 +134,7 @@ define(function (require) {
      * @method save
      */
     save: function (name) {
-      localStorage.setItem(name, this.toLocaleString());
+      localStorage.setItem(name, this.toString());
     },
 
     /**

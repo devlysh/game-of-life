@@ -58,7 +58,7 @@ define(['../../app/src/lib/game.js'], function (Game) {
       });
     });
 
-    describe('.toLocaleString method', function () {
+    describe('.toString method', function () {
       it('converts canvas to plain object with coordinates of alive cells', function () {
         var string, loadedGame, x, y, step;
         x = 3;
@@ -67,7 +67,7 @@ define(['../../app/src/lib/game.js'], function (Game) {
         game.killAllCells();
         game.universe.space[x][y].revive();
         game.step = step;
-        string = game.toLocaleString();
+        string = game.toString();
         loadedGame = JSON.parse(string);
         expect(typeof string).toBe('string');
         expect(loadedGame.space).toBeDefined();
@@ -118,7 +118,7 @@ define(['../../app/src/lib/game.js'], function (Game) {
         name = 'someName';
         game.save(name);
         savedGame = localStorage.getItem(name);
-        stringifiedGame = game.toLocaleString();
+        stringifiedGame = game.toString();
         expect(savedGame).toBeDefined();
         expect(savedGame).toBe(stringifiedGame);
       });
@@ -132,7 +132,7 @@ define(['../../app/src/lib/game.js'], function (Game) {
         game.universe.space[3][6].revive();
         game.universe.space[3][10].revive();
         game.universe.space[13][15].revive();
-        firstGame = game.toLocaleString();
+        firstGame = game.toString();
         game.save(name);
         game.killAllCells();
       });
@@ -141,7 +141,7 @@ define(['../../app/src/lib/game.js'], function (Game) {
         define(['../../app/src/lib/default_game.js'], function (defaultGame) {
           var loadedGame;
           game.load();
-          loadedGame = game.toLocaleString();
+          loadedGame = game.toString();
           expect(defaultGame).toBe(loadedGame);
         });
       });
@@ -149,7 +149,7 @@ define(['../../app/src/lib/game.js'], function (Game) {
       it('loads game with given name from localStorage', function () {
         var secondGame;
         game.load(name);
-        secondGame = game.toLocaleString();
+        secondGame = game.toString();
         expect(firstGame).toBe(secondGame);
       });
     });
