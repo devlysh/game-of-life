@@ -1,0 +1,115 @@
+html, body {
+  width: 100%;
+  height: 100%;
+}
+.wrap {
+  width: 100%;
+  height: 100%;
+}
+
+.universe {
+  border: 1px solid #000;
+  margin: 0 auto;
+  display: block;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  width: 100%;
+
+  .button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    outline-width: 0px;
+    outline: none;
+    width: 120px;
+    font-size: 14px;
+    box-shadow: 6px 6px 6px #666;
+    border: 1px solid #aaa;
+    border-bottom: none;
+    height: 40px;
+    line-height: 20px;
+    color: #fefefe;
+    text-transform: uppercase;
+    &.excluded {
+      display: none;
+    }
+    &:hover {
+      box-shadow: 5px 5px 5px #666;
+      color: #efefef;
+    }
+    &:active {
+      box-shadow: 3px 3px 3px #666;
+    }
+  }
+  .start-button {
+    background-color: #6fcc80;
+  }
+  .stop-button {
+    background-color: #cc7044;
+  }
+  .step-button {
+    background-color: #888;
+  }
+  .clear-button {
+    background-color: #888;
+  }
+  .save-button {
+    background-color: #555;
+  }
+  .load-button {
+    background-color: #555;
+  }
+}
+
+.input-panel {
+  position: fixed;
+  width: 100%;
+  top: 30px;
+  left: 40px;
+  line-height: 20px;
+  & > .wrap {
+    position: relative;
+    left: 50%;
+    & > .input-block {
+      margin-left: -150px;
+    }
+  }
+  .value {
+    vertical-align: middle;
+  }
+  input {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 10px;
+  }
+  .description {
+    font-size: 66%;
+    vertical-align: middle;
+  }
+}
+.step-display {
+  left: 0;
+  position: fixed;
+  bottom: 65px;
+  width: 100%;
+  text-align: center;
+  font-size: 20px;
+
+  span {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    background-color: rgba(255,255,255,0.5);
+  }
+}

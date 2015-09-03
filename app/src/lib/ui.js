@@ -112,9 +112,8 @@ define(function (require) {
    */
   function startGame() {
     game.start();
-    game.ui.gameButtonElement.classList.remove('start-button');
-    game.ui.gameButtonElement.classList.add('stop-button');
-    game.ui.gameButtonElement.innerHTML = 'STOP';
+    game.ui.startButtonElement.classList.add('excluded');
+    game.ui.stopButtonElement.classList.remove('excluded');
   }
 
   /**
@@ -124,9 +123,8 @@ define(function (require) {
    */
   function stopGame() {
     game.stop();
-    game.ui.gameButtonElement.classList.remove('stop-button');
-    game.ui.gameButtonElement.classList.add('start-button');
-    game.ui.gameButtonElement.innerHTML = 'START';
+    game.ui.startButtonElement.classList.remove('excluded');
+    game.ui.stopButtonElement.classList.add('excluded');
   }
 
   /**
@@ -287,27 +285,31 @@ define(function (require) {
      * @return {DocumentFragment} Game menu
      */
     createButtonsMenu: function () {
-      var menu, template, gameButton, stepButton, clearButton, loadButton, saveButton;
+      var menu, template, startButton, stepButton, clearButton, loadButton, saveButton;
       template = '' +
         '<div class="menu">' +
-        '  <button class="button start-button">START</button>' +
-        '  <button class="button step-button">NEXT STEP</button>' +
-        '  <button class="button clear-button">CLEAR</button>' +
-        '  <button class="button load-button">LOAD</button>' +
-        '  <button class="button save-button">SAVE</button>' +
+        '  <button class="button start-button">start</button>' +
+        '  <button class="button stop-button excluded">stop</button>' +
+        '  <button class="button step-button">next step</button>' +
+        '  <button class="button clear-button">clear</button>' +
+        '  <button class="button load-button">load</button>' +
+        '  <button class="button save-button">save</button>' +
         '</div>';
       menu = this.parseTemplate(template);
-      gameButton = menu.querySelector('.start-button');
+      startButton = menu.querySelector('.start-button');
+      stopButton = menu.querySelector('.stop-button');
       stepButton = menu.querySelector('.step-button');
       clearButton = menu.querySelector('.clear-button');
       loadButton = menu.querySelector('.load-button');
       saveButton = menu.querySelector('.save-button');
-      gameButton.addEventListener('click', toggleGameListener);
+      startButton.addEventListener('click', toggleGameListener);
+      stopButton.addEventListener('click', toggleGameListener);
       stepButton.addEventListener('click', stepForwardListener);
       clearButton.addEventListener('click', clearListener);
       loadButton.addEventListener('click', loadListener);
       saveButton.addEventListener('click', saveListener);
-      this.gameButtonElement = gameButton;
+      this.startButtonElement = startButton;
+      this.stopButtonElement = stopButton;
       return menu;
     },
 
@@ -381,6 +383,7 @@ define(function (require) {
       this.minNeighborsToLiveElement = minToLiveElement;
       this.maxNeighborsToLiveElement = maxToLiveElement;
       this.neighborsToBeBornElement = toBeBornElement;
+      this.bindKeys();
       return inputPanel;
     },
 
@@ -400,7 +403,6 @@ define(function (require) {
       element.appendChild(stepDisplay);
       element.appendChild(inputPanel);
       element.appendChild(menu);
-      this.bindKeys();
     },
 
     /**
@@ -436,18 +438,26 @@ define(function (require) {
     neighborsToBeBornElement: null,
 
     /**
-     * Button which starts and stops game
+     * Button which starts game
      *
-     * @property gameButtonElement
+     * @property startButtonElement
      * @type HTMLElement
      */
-    gameButtonElement: null,
+    startButtonElement: null,
+
+    /**
+     * Button which stops game
+     *
+     * @property stopButtonElement
+     * @type HTMLElement
+     */
+    stopButtonElement: null,
 
     /**
      * Link to canvas element
      *
      * @property canvas
-     * @type {HTMLCanvasElement}
+     * @type HTMLCanvasElement
      */
     canvas: null,
 
