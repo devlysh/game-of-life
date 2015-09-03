@@ -1,6 +1,3 @@
-// Karma configuration
-// Generated on Sun Oct 20 2013 07:28:56 GMT+0200 (CEST)
-
 module.exports = function(config) {
   config.set({
 
@@ -26,10 +23,19 @@ module.exports = function(config) {
       'src/main.js'
     ],
 
+    preprocessors: {
+      '**/lib/*.js': 'coverage'
+    },
 
     // test results reporter to use
     // possible values: 'dots', 'progress', 'junit', 'growl', 'coverage'
-    reporters: ['progress'],
+    reporters: ['progress', 'coverage'],
+
+    coverageReporter: {
+      type : 'html',
+      dir : 'coverage/',
+      file : 'coverage.txt'
+    },
 
 
     // web server port
@@ -57,7 +63,7 @@ module.exports = function(config) {
     // - Safari (only Mac)
     // - PhantomJS
     // - IE (only Windows)
-    browsers: ['Firefox'],
+    browsers: ['Firefox', 'Chrome'],
 
 
     // If browser does not capture in given timeout [ms], kill it
