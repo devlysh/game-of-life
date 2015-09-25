@@ -355,17 +355,17 @@ define(function (require) {
         '    <div class="input-block">' +
         '      <span class="value">2</span>' +
         '      <input class="min-to-live" type="range" min="0" max="8" name="min-to-live">' +
-        '      <span class="description">MIN neighbours to LIVE</span>' +
+        '      <span class="description">MIN neighbors to LIVE</span>' +
         '    </div>' +
         '    <div class="input-block">' +
         '      <span class="value">3</span>' +
         '      <input class="max-to-live" type="range" min="0" max="8" name="max-to-live">' +
-        '      <span class="description">MAX neighbours to LIVE</span>' +
+        '      <span class="description">MAX neighbors to LIVE</span>' +
         '    </div>' +
         '    <div class="input-block">' +
         '      <span class="value">3</span>' +
         '      <input class="to-be-born" type="range" min="0" max="8" name="to-be-born">' +
-        '      <span class="description">N neighbours to BE BORN</span>' +
+        '      <span class="description">N neighbors to BE BORN</span>' +
         '    </div>' +
         '    <div class="clear"></div>' +
         '  </div>' +
