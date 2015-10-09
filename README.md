@@ -1,12 +1,11 @@
 # Game of Life
-**Implementation on vanilla JavaScript with RequireJS**
+**Implementation using vanilla JavaScript with RequireJS**
 
 Working implementation without proper UI and features.
 
 [Click here](http://devlysh.github.io/game-of-life/app/) to play.
 
-Code coverage for: [Chrome](http://devlysh.github.io/game-of-life/coverage/Chrome%2045.0.2454%20(Mac%20OS%20X%2010.10.5)/app/src/lib/index.html), [Mozilla](http://devlysh.github.io/game-of-life/coverage/Firefox%2039.0.0%20(Mac%20OS%20X%2010.10.0)/app/src/lib/index.html).
-
+Code coverage for: [Chrome](http://devlysh.github.io/game-of-life/coverage/Chrome%2045.0.2454%20(Mac%20OS%20X%2010.10.5)/app/src/lib/index.html)
 ## Hotkeys:
 
 Start/Stop: `space`
