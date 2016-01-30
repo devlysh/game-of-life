@@ -9,6 +9,7 @@ Code coverage for: [Chrome](http://devlysh.github.io/game-of-life/coverage/Chrom
 ## Hotkeys:
 
 Start/Stop: `space`
+Nest step: `shift + space`
 
 | | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
