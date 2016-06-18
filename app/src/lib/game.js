@@ -65,7 +65,7 @@ define(function (require) {
 
     /**
      * @method toString
-     * @return {Array} Array of data with alive cells coordinates and step count
+     * @return {string} Stringified array of data with alive cells coordinates and step count
      */
     toString: function () {
       var result, plainSpace;
