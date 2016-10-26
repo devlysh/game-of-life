@@ -138,7 +138,7 @@ define(['../../app/src/lib/game.js'], function (Game) {
       });
 
       it('loads default game if it is called without params', function () {
-        define(['../../app/src/lib/default_game.js'], function (defaultGame) {
+        define(['../../app/src/lib/default-game.js'], function (defaultGame) {
           var loadedGame;
           game.load();
           loadedGame = game.toString();

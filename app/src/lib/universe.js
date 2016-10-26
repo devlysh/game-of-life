@@ -3,39 +3,18 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
-define(function (require) {
-  var config = require('./config.js');
-
-  /**
-   * @class Universe
-   * @constructor
-   */
-  var Universe = function () {
-    this.width = config.UNIVERSE_WIDTH;
-    this.height = config.UNIVERSE_HEIGHT;
-    this.space = this._createSpace(this.width, this.height);
-  };
-
-  Universe.prototype = {
+define(['./config.js', './cell.js'], function (config, Cell) {
+    'use strict';
 
     /**
-     * Creates new space
-     *
-     * @method _createSpace
-     * @return {Array} New 2d array for cells
+     * @class Universe
+     * @constructor
      */
-    _createSpace: function (width, height) {
-      var x, y, space, Cell;
-      space = [];
-      Cell = require('./cell.js');
-      for (x = 0; x < width; x++) {
-        space[x] = [];
-        for (y = 0; y < height; y++) {
-          space[x][y] = new Cell(x, y);
-        }
-      }
-      return space;
-    },
+    function Universe() {
+        this.width = config.UNIVERSE_WIDTH;
+        this.height = config.UNIVERSE_HEIGHT;
+        this.space = _createSpace(this.width, this.height);
+    }
 
     /**
      * Universe width
@@ -43,7 +22,7 @@ define(function (require) {
      * @property width
      * @type {Number}
      */
-    width: null,
+    Universe.prototype.width = null;
 
     /**
      * Universe height
@@ -51,7 +30,7 @@ define(function (require) {
      * @property height
      * @type {Number}
      */
-    height: null,
+    Universe.prototype.height = null;
 
     /**
      * Space is 2d array with cells
@@ -59,8 +38,26 @@ define(function (require) {
      * @property space
      * @type {Array}
      */
-    space: null
-  };
+    Universe.prototype.space = null;
 
-  return Universe;
+    /**
+     * Creates new space
+     *
+     * @method _createSpace
+     * @private
+     * @return {Array} New 2d array for cells
+     */
+    function _createSpace(width, height) {
+        var x, y,
+            space = [];
+        for (x = 0; x < width; x++) {
+            space[x] = [];
+            for (y = 0; y < height; y++) {
+                space[x][y] = new Cell(x, y);
+            }
+        }
+        return space;
+    }
+
+    return Universe;
 });

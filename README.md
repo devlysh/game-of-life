@@ -3,9 +3,8 @@
 
 Working implementation without proper UI and features.
 
-[Click here](http://devlysh.github.io/game-of-life/app/) to play.
+[Click here](http://devlysh.github.io/game-of-life/) to play.
 
-Code coverage for: [Chrome](http://devlysh.github.io/game-of-life/coverage/Chrome%2045.0.2454%20(Mac%20OS%20X%2010.10.5)/app/src/lib/index.html)
 ## Hotkeys:
 
 Start/Stop: `space`
