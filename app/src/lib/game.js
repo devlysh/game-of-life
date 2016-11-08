@@ -182,6 +182,19 @@ define(['./config.js', './default-game.js', './universe.js', './ui.js'], functio
     }
 
     /**
+     * Makes one single step
+     *
+     * @method stepOnce
+     */
+    Game.prototype.stepOnce = stepOnce;
+    function stepOnce() {
+        _setStepCounter.call(this, this.step + 1);
+        _forEachCell.call(this, _calculateNextStep);
+        _forEachCell.call(this, _resolveRound);
+        _forEachCell.call(this, _render);
+    }
+
+    /**
      * Kills, revives cells and sets counters
      *
      * @method stepForward

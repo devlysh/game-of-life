@@ -106,7 +106,7 @@ define(['./config.js'], function (config) {
         switch (event.keyCode) {
             case config.keys.space:
                 if (event.shiftKey) {
-                    _stopGame();
+                    _stopGame.call(this);
                     _stepForwardListener.call(this);
                 } else {
                     _toggleGameListener.call(this);
@@ -243,7 +243,7 @@ define(['./config.js'], function (config) {
      */
     function _stepForwardListener(event) {
         event && event.target.blur();
-        this.game.stepForward();
+        this.game.stepOnce();
     }
 
     /**
