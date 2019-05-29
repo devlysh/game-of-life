@@ -3,7 +3,7 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
-define(['./config.js', './cell.js'], function (config, Cell) {
+define(['./constants/config.js', './cell.js'], function (config, Cell) {
     'use strict';
 
     /**

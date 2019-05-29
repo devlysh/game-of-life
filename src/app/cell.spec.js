@@ -1,4 +1,4 @@
-define(['../../app/src/lib/cell.js'], function (Cell) {
+define(['./cell.js'], function (Cell) {
 
   describe('Cell', function () {
     var cell, x, y;
@@ -36,7 +36,7 @@ define(['../../app/src/lib/cell.js'], function (Cell) {
 
     describe('.calculateColor method', function () {
       it('calculates color of cell', function () {
-        define(['../../app/src/lib/config.js'], function (config) {
+        define(['./constants/config.js'], function (config) {
           cell.revive();
           expect(cell.color).toBe(config.ALIVE_COLOR);
           cell.kill();

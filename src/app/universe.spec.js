@@ -1,4 +1,4 @@
-define(['../../app/src/lib/universe.js'], function (Universe) {
+define(['.universe.js'], function (Universe) {
 
   describe('Universe', function () {
     var universe;

@@ -3,7 +3,7 @@
  * Copyright (C) Artem Devlysh, 2015
  */
 
-define(['./config.js', './default-game.js', './universe.js', './ui.js'], function (config, defaultGame, Universe, UI) {
+define(['./constants/config.js', './constants/default-game.js', './universe.js', './ui.js'], function (config, defaultGame, Universe, UI) {
     'use strict';
 
     /**
