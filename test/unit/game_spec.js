@@ -1,4 +1,4 @@
-define(['../../app/src/lib/game.js'], function (Game) {
+define(['../../src/app/game.js'], function (Game) {
 
   describe('Game', function () {
     var game;
