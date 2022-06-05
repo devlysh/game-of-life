@@ -317,8 +317,8 @@ define(['./constants/config.js'], function (config) {
     function _toggleCellListener(event) {
         var fullCellWidth = config.CELL_WIDTH + config.BORDER_WIDTH,
             fullCellHeight = config.CELL_HEIGHT + config.BORDER_WIDTH,
-            x = Math.floor((event.layerX - config.BORDER_WIDTH) / fullCellWidth),
-            y = Math.floor((event.layerY - config.BORDER_WIDTH) / fullCellHeight);
+            x = Math.floor((event.offsetX - config.BORDER_WIDTH) / fullCellWidth),
+            y = Math.floor((event.offsetY - config.BORDER_WIDTH) / fullCellHeight);
         this.game.toggleCell.call(this.game, x, y);
     }
 
