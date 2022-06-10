@@ -106,7 +106,7 @@ define(['./constants/config.js', './constants/default-game.js', './universe.js',
      */
     Game.prototype.save = save;
     function save(name) {
-        localStorage.setItem(name, _toString());
+        localStorage.setItem(name, _toString.call(this));
     }
 
     /**
